@@ -78,3 +78,22 @@ bool boggle::is_word(string input) {
     inFS.close();
     return false;
 }
+
+bool boggle::is_partial_word(string input) {
+    ifstream inFS;
+    inFS.open("word-list.txt");
+
+    string index;
+    while (!inFS.eof()) {
+        getline(inFS, index);
+        if (input == index.substr(0, input.size())) {
+            cout << "input: " << input << endl;
+            cout << "index: " << index << endl;
+            cout << "partial match: " << index.substr(0, input.size()) << endl;
+            return true;
+        }
+    }
+
+    inFS.close();
+    return false;
+}

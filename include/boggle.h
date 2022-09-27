@@ -16,6 +16,7 @@ class boggle {
         std::vector<std::string> words;
         std::vector<std::string> player_words;
         bool is_word(std::string input);
+        bool is_partial_word(std::string input);
 };
 
 #endif
