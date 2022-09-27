@@ -15,6 +15,7 @@ class boggle {
         float timer;
         std::vector<std::string> words;
         std::vector<std::string> player_words;
+        bool is_word(std::string input);
 };
 
 #endif

@@ -1,10 +1,12 @@
 #include "boggle.h"
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <time.h>
 
 using std::cout, std::endl;
-using std::vector;
+using std::string, std::vector;
+using std::ifstream;
 
 boggle::boggle() {
     vector<vector<char>> vec(5, vector<char>(5));
@@ -59,4 +61,20 @@ void boggle::shuffle() {
             ++k;
         }
     }
+}
+
+bool boggle::is_word(string input) {
+    ifstream inFS;
+    inFS.open("word-list.txt");
+        
+    string index;
+    while (!inFS.eof()) {
+        getline(inFS, index);
+        if (input == index) {
+            return true;
+        }
+    }
+
+    inFS.close();
+    return false;
 }
