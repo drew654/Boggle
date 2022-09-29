@@ -156,17 +156,15 @@ vector<string> boggle::find_all_words() {
     return words;
 }
 
-void boggle::find_words_at2(unsigned int row, unsigned int col, vector<std::pair<string, vector<std::pair<int, int>>>> &words, std::pair<string, vector<std::pair<int, int>>> cur) {
-    if (row >= board.size() || col >= board.at(0).size() || (!is_partial_word(cur.first) && cur.first != "")) {\
-        // cout << "nope" << endl;
+void boggle::find_words_at2(unsigned int row, unsigned int col, vector<mapped_word> &words, mapped_word cur) {
+    if (row >= board.size() || col >= board.at(0).size() || (!is_partial_word(cur.word) && cur.word != "")) {
         return;
     }
     else {
-        // cout << "cur: |" << cur.first << "|" << endl;
-        cur.first += tolower(board.at(row).at(col));
-        cur.second.push_back({row, col});
+        cur.word += tolower(board.at(row).at(col));
+        cur.letters.push_back({row, col});
     }
-    if (is_word(cur.first)) {
+    if (is_word(cur.word)) {
         words.push_back(cur);
     }
 
@@ -179,16 +177,14 @@ void boggle::find_words_at2(unsigned int row, unsigned int col, vector<std::pair
     find_words_at2(row + 1, col, words, cur);
     find_words_at2(row, col - 1, words, cur);
 
-    // TODO: Figure out why checking diagonals takes too long
-
-    // find_words_at(row - 1, col - 1, words, cur);
-    // find_words_at(row - 1, col, words, cur);
-    // find_words_at(row - 1, col + 1, words, cur);
-    // find_words_at(row, col + 1, words, cur);
-    // find_words_at(row + 1, col + 1, words, cur);
-    // find_words_at(row + 1, col, words, cur);
-    // find_words_at(row + 1, col - 1, words, cur);
-    // find_words_at(row, col - 1, words, cur);
+    // find_words_at2(row - 1, col - 1, words, cur);
+    // find_words_at2(row - 1, col, words, cur);
+    // find_words_at2(row - 1, col + 1, words, cur);
+    // find_words_at2(row, col + 1, words, cur);
+    // find_words_at2(row + 1, col + 1, words, cur);
+    // find_words_at2(row + 1, col, words, cur);
+    // find_words_at2(row + 1, col - 1, words, cur);
+    // find_words_at2(row, col - 1, words, cur);
 
     board.at(row).at(col) = t;
 
@@ -196,23 +192,22 @@ void boggle::find_words_at2(unsigned int row, unsigned int col, vector<std::pair
 }
 
 void boggle::find_all_words2() {
-    vector<std::pair<string, vector<std::pair<int, int>>>> words;
-    std::pair<string, vector<std::pair<int, int>>> cur;
-    vector<std::pair<int, int>> c;
+    vector<mapped_word> words;
+    mapped_word cur;
     for (unsigned int row = 0; row < board.size(); ++row) {
-        for (unsigned int col = 0; col < board.at(0).size(); ++col) {
+        for (unsigned int col = 0; col < board.at(row).size(); ++col) {
             cout << "starting at: " << board.at(row).at(col) << endl;
             find_words_at2(row, col, words, cur);
         }
     }
     cout << endl;
-    
+
     for (unsigned int lindex = 0; lindex < words.size(); ++lindex) {
         vector<vector<char>> b(5, vector<char>(5, ' '));
-        for (unsigned int windex = 0; windex < words.at(lindex).second.size(); ++windex) {
-            b.at(words.at(lindex).second.at(windex).first).at(words.at(lindex).second.at(windex).second) = toupper(words.at(lindex).first.at(windex));
+        for (unsigned int windex = 0; windex < words.at(lindex).word.size(); ++windex) {
+            b.at(words.at(lindex).letters.at(windex).first).at(words.at(lindex).letters.at(windex).second) = toupper(words.at(lindex).word.at(windex));
         }
-        cout << words.at(lindex).first << endl;
+        cout << words.at(lindex).word << endl;
         cout << "┌───────────┐" << endl;
         for (unsigned int row = 0; row < b.size(); ++row) {
             cout << "│ ";
@@ -223,8 +218,6 @@ void boggle::find_all_words2() {
         }
         cout << "└───────────┘" << endl;
     }
-    
-    
 }
 
 void boggle::solve() {
