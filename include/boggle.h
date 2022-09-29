@@ -17,6 +17,10 @@ class boggle {
             public:
                 std::string word;
                 std::vector<std::pair<int, int>> letters;
+                void print_word_chart();
+            private:
+                std::vector<std::vector<char>> word_chart();
+                void print_board(std::vector<std::vector<char>> b);
         };
         std::vector<std::vector<char>> board;
         float timer;
@@ -28,7 +32,7 @@ class boggle {
         std::vector<std::string> find_all_words();
         void find_words_at2(unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur);
         void find_all_words2();
-        void print_board(std::vector<std::vector<char>> b);
+        
 };
 
 #endif

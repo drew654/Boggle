@@ -112,12 +112,13 @@ void boggle::find_words_at(unsigned int row, unsigned int col, vector<string> &w
         return;
     }
     else {
-        // cout << "cur: |" << cur << "|" << endl;
         cur += tolower(board.at(row).at(col));
     }
     if (is_word(cur)) {
         words.push_back(cur);
     }
+
+    cout << "cur: |" << cur << "|" << endl;
 
     // Sets - so that the current letter isn't used again
     char t = board.at(row).at(col);
@@ -202,13 +203,9 @@ void boggle::find_all_words2() {
     }
     cout << endl;
 
-    for (unsigned int lindex = 0; lindex < words.size(); ++lindex) {
-        vector<vector<char>> b(5, vector<char>(5, ' '));
-        for (unsigned int windex = 0; windex < words.at(lindex).word.size(); ++windex) {
-            b.at(words.at(lindex).letters.at(windex).first).at(words.at(lindex).letters.at(windex).second) = toupper(words.at(lindex).word.at(windex));
-        }
-        cout << words.at(lindex).word << endl;
-        print_board(b);
+    for (auto word : words) {
+        cout << word.word << endl;
+        word.print_word_chart();
     }
 }
 
@@ -225,7 +222,7 @@ void boggle::solve2() {
     find_all_words2();
 }
 
-void boggle::print_board(vector<vector<char>> b) {
+void boggle::mapped_word::print_board(vector<vector<char>> b) {
     cout << "┌───────────┐" << endl;
         for (unsigned int row = 0; row < b.size(); ++row) {
             cout << "│ ";
@@ -235,4 +232,16 @@ void boggle::print_board(vector<vector<char>> b) {
             cout << " │" << endl;
         }
     cout << "└───────────┘" << endl;
+}
+
+vector<vector<char>> boggle::mapped_word::word_chart() {
+    vector<vector<char>> b(5, vector<char>(5, ' '));
+    for (unsigned int windex = 0; windex < word.size(); ++windex) {
+        b.at(letters.at(windex).first).at(letters.at(windex).second) = toupper(word.at(windex));
+    }
+    return b;
+}
+
+void boggle::mapped_word::print_word_chart() {
+    print_board(word_chart());
 }
