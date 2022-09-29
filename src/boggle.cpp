@@ -24,6 +24,7 @@ void boggle::print_board() {
     cout << endl;
 }
 
+// TODO: Fix so that dice are in random spot on the board
 void boggle::shuffle() {
     vector<vector<char>> dice {
         {'Q', 'B', 'Z', 'J', 'X', 'K'},
@@ -61,6 +62,13 @@ void boggle::shuffle() {
             ++k;
         }
     }
+
+    // board = {
+    //     {'B', 'O', 'O', 'F', 'E'},
+    //     {'L', 'D', 'N', 'F', 'I'},
+    //     {'C', 'S', 'P', 'D', 'W'},
+    //     {'T', 'C', 'N', 'E', 'W'},
+    //     {'A', 'Y', 'E', 'I', 'L'}};
 }
 
 bool boggle::is_word(string input) {
@@ -87,13 +95,67 @@ bool boggle::is_partial_word(string input) {
     while (!inFS.eof()) {
         getline(inFS, index);
         if (input == index.substr(0, input.size())) {
-            cout << "input: " << input << endl;
-            cout << "index: " << index << endl;
-            cout << "partial match: " << index.substr(0, input.size()) << endl;
             return true;
         }
     }
 
     inFS.close();
     return false;
+}
+
+void boggle::find_words_at(unsigned int row, unsigned int col, vector<string> &words, string cur) {
+    if (row >= board.size() || col >= board.at(0).size() || (!is_partial_word(cur) && cur != "")) {
+        return;
+    }
+    else {
+        // cout << "cur: |" << cur << "|" << endl;
+        cur += tolower(board.at(row).at(col));
+    }
+    if (is_word(cur)) {
+        words.push_back(cur);
+    }
+
+    // Sets - so that the current letter isn't used again
+    char t = board.at(row).at(col);
+    board.at(row).at(col) = '-';
+
+    find_words_at(row - 1, col, words, cur);
+    find_words_at(row, col + 1, words, cur);
+    find_words_at(row + 1, col, words, cur);
+    find_words_at(row, col - 1, words, cur);
+
+    // TODO: Figure out why checking diagonals takes too long
+
+    // find_words_at(row - 1, col - 1, words, cur);
+    // find_words_at(row - 1, col, words, cur);
+    // find_words_at(row - 1, col + 1, words, cur);
+    // find_words_at(row, col + 1, words, cur);
+    // find_words_at(row + 1, col + 1, words, cur);
+    // find_words_at(row + 1, col, words, cur);
+    // find_words_at(row + 1, col - 1, words, cur);
+    // find_words_at(row, col - 1, words, cur);
+
+    board.at(row).at(col) = t;
+
+    return;
+}
+
+vector<string> boggle::find_all_words() {
+    vector<string> words;
+    for (unsigned int row = 0; row < board.size(); ++row) {
+        for (unsigned int col = 0; col < board.at(0).size(); ++col) {
+            cout << "starting at: " << board.at(row).at(col) << endl;
+            find_words_at(row, col, words, "");
+        }
+    }
+    return words;
+}
+
+void boggle::solve() {
+    vector<string> s = find_all_words();
+    cout << endl;
+    cout << "result: " << endl;
+    for (auto i : s) {
+        cout << i << endl;
+    }
 }
