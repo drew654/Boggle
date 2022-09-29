@@ -28,6 +28,7 @@ class boggle {
         std::vector<std::string> find_all_words();
         void find_words_at2(unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur);
         void find_all_words2();
+        void print_board(std::vector<std::vector<char>> b);
 };
 
 #endif

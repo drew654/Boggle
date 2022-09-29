@@ -112,7 +112,7 @@ void boggle::find_words_at(unsigned int row, unsigned int col, vector<string> &w
         return;
     }
     else {
-        cout << "cur: |" << cur << "|" << endl;
+        // cout << "cur: |" << cur << "|" << endl;
         cur += tolower(board.at(row).at(col));
     }
     if (is_word(cur)) {
@@ -208,15 +208,7 @@ void boggle::find_all_words2() {
             b.at(words.at(lindex).letters.at(windex).first).at(words.at(lindex).letters.at(windex).second) = toupper(words.at(lindex).word.at(windex));
         }
         cout << words.at(lindex).word << endl;
-        cout << "┌───────────┐" << endl;
-        for (unsigned int row = 0; row < b.size(); ++row) {
-            cout << "│ ";
-            for (unsigned int col = 0; col < b.at(row).size(); ++col) {
-                cout << b.at(row).at(col) << (col < b.at(row).size()-1 ? " " : "");
-            }
-            cout << " │" << endl;
-        }
-        cout << "└───────────┘" << endl;
+        print_board(b);
     }
 }
 
@@ -231,4 +223,16 @@ void boggle::solve() {
 
 void boggle::solve2() {
     find_all_words2();
+}
+
+void boggle::print_board(vector<vector<char>> b) {
+    cout << "┌───────────┐" << endl;
+        for (unsigned int row = 0; row < b.size(); ++row) {
+            cout << "│ ";
+            for (unsigned int col = 0; col < b.at(row).size(); ++col) {
+                cout << b.at(row).at(col) << (col < b.at(row).size()-1 ? " " : "");
+            }
+            cout << " │" << endl;
+        }
+    cout << "└───────────┘" << endl;
 }
