@@ -5,7 +5,7 @@
 #include <time.h>
 
 using std::cout, std::endl;
-using std::string, std::vector;
+using std::string, std::vector, std::pair;
 using std::ifstream;
 
 boggle::boggle() {
@@ -108,7 +108,6 @@ bool boggle::is_partial_word(string input) {
 
 void boggle::find_words_at(unsigned int row, unsigned int col, vector<string> &words, string cur) {
     if (row >= board.size() || col >= board.at(0).size() || (!is_partial_word(cur) && cur != "")) {\
-        // cout << "nope" << endl;
         return;
     }
     else {
@@ -124,21 +123,14 @@ void boggle::find_words_at(unsigned int row, unsigned int col, vector<string> &w
     char t = board.at(row).at(col);
     board.at(row).at(col) = '-';
 
+    find_words_at(row - 1, col - 1, words, cur);
     find_words_at(row - 1, col, words, cur);
+    find_words_at(row - 1, col + 1, words, cur);
     find_words_at(row, col + 1, words, cur);
+    find_words_at(row + 1, col + 1, words, cur);
     find_words_at(row + 1, col, words, cur);
+    find_words_at(row + 1, col - 1, words, cur);
     find_words_at(row, col - 1, words, cur);
-
-    // TODO: Figure out why checking diagonals takes too long
-
-    // find_words_at(row - 1, col - 1, words, cur);
-    // find_words_at(row - 1, col, words, cur);
-    // find_words_at(row - 1, col + 1, words, cur);
-    // find_words_at(row, col + 1, words, cur);
-    // find_words_at(row + 1, col + 1, words, cur);
-    // find_words_at(row + 1, col, words, cur);
-    // find_words_at(row + 1, col - 1, words, cur);
-    // find_words_at(row, col - 1, words, cur);
 
     board.at(row).at(col) = t;
 
@@ -166,6 +158,7 @@ void boggle::find_words_at2(unsigned int row, unsigned int col, vector<mapped_wo
         cur.letters.push_back({row, col});
     }
     if (is_word(cur.word)) {
+        cout << "word: " << cur.word << endl;
         words.push_back(cur);
     }
 
@@ -173,19 +166,14 @@ void boggle::find_words_at2(unsigned int row, unsigned int col, vector<mapped_wo
     char t = board.at(row).at(col);
     board.at(row).at(col) = '-';
 
+    find_words_at2(row - 1, col - 1, words, cur);
     find_words_at2(row - 1, col, words, cur);
+    find_words_at2(row - 1, col + 1, words, cur);
     find_words_at2(row, col + 1, words, cur);
+    find_words_at2(row + 1, col + 1, words, cur);
     find_words_at2(row + 1, col, words, cur);
+    find_words_at2(row + 1, col - 1, words, cur);
     find_words_at2(row, col - 1, words, cur);
-
-    // find_words_at2(row - 1, col - 1, words, cur);
-    // find_words_at2(row - 1, col, words, cur);
-    // find_words_at2(row - 1, col + 1, words, cur);
-    // find_words_at2(row, col + 1, words, cur);
-    // find_words_at2(row + 1, col + 1, words, cur);
-    // find_words_at2(row + 1, col, words, cur);
-    // find_words_at2(row + 1, col - 1, words, cur);
-    // find_words_at2(row, col - 1, words, cur);
 
     board.at(row).at(col) = t;
 
@@ -244,4 +232,70 @@ vector<vector<char>> boggle::mapped_word::word_chart() {
 
 void boggle::mapped_word::print_word_chart() {
     print_board(word_chart());
+}
+
+bool boggle::word_in_board(string input) {
+    vector<mapped_word> words;
+    mapped_word cur;
+    vector<pair<int, int>> start_points;
+    for (unsigned int row = 0; row < board.size(); ++row) {
+        for (unsigned int col = 0; col < board.at(row).size(); ++col) {
+            if (board.at(row).at(col) == toupper(input.at(0))) {
+                start_points.push_back({row, col});
+            }
+        }
+    }
+
+    for (auto i : start_points) {
+        search_for_word_at(i.first, i.second, words, cur, input);
+    }
+
+    for (auto i : words) {
+        if (i.word == input) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void boggle::search_for_word_at(unsigned int row, unsigned int col, vector<mapped_word> &words, mapped_word cur, string word) {
+    if (row >= board.size() || col >= board.at(row).size() || (!is_partial_word(cur.word) && cur.word != "")) {
+        return;
+    }
+    else if (!partial_word_of(cur.word, word)) {
+        return;
+    }
+    else {
+        cur.word += tolower(board.at(row).at(col));
+        cur.letters.push_back({row, col});
+    }
+    if (is_word(cur.word)) {
+        words.push_back(cur);
+    }
+
+    // Sets - so that the current letter isn't used again
+    char t = board.at(row).at(col);
+    board.at(row).at(col) = '-';
+
+    search_for_word_at(row - 1, col - 1, words, cur, word);
+    search_for_word_at(row - 1, col, words, cur, word);
+    search_for_word_at(row - 1, col + 1, words, cur, word);
+    search_for_word_at(row, col + 1, words, cur, word);
+    search_for_word_at(row + 1, col + 1, words, cur, word);
+    search_for_word_at(row + 1, col, words, cur, word);
+    search_for_word_at(row + 1, col - 1, words, cur, word);
+    search_for_word_at(row, col - 1, words, cur, word);
+
+    board.at(row).at(col) = t;
+
+    return;
+}
+
+bool boggle::partial_word_of(string piece, string whole) {
+    if (piece == whole.substr(0, piece.size())) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }

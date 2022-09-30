@@ -32,7 +32,9 @@ class boggle {
         std::vector<std::string> find_all_words();
         void find_words_at2(unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur);
         void find_all_words2();
-        
+        void search_for_word_at(unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur, std::string word);
+        bool partial_word_of(std::string piece, std::string whole);
+        bool word_in_board(std::string input);
 };
 
 #endif
