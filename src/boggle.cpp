@@ -8,6 +8,26 @@ using std::cout, std::endl;
 using std::string, std::vector, std::pair;
 using std::ifstream;
 
+int v_count(vector<int> v, int i) {
+    int count = 0;
+    for (auto index : v) {
+        if (index == i) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+int v_highest_count(vector<int> v) {
+    int highest_count = 0;
+    for (auto i : v) {
+        if (v_count(v, i) > highest_count) {
+            highest_count = v_count(v, i);
+        }
+    }
+    return highest_count;
+}
+
 boggle::boggle() {
     vector<vector<char>> vec(5, vector<char>(5));
     board = vec;
@@ -27,7 +47,6 @@ void boggle::print_board() {
     cout << endl;
 }
 
-// TODO: Fix so that dice are in random spot on the board
 void boggle::shuffle() {
     vector<vector<char>> dice {
         {'Q', 'B', 'Z', 'J', 'X', 'K'},
@@ -58,20 +77,26 @@ void boggle::shuffle() {
     };
 
     srand(time(0));
-    int k = 0;
-    for (int i = 0; i < 5; ++i) {
-        for (int j = 0; j < 5; ++j) {
-            board.at(i).at(j) = dice.at(k).at(rand() % 5);
-            ++k;
+
+    int die = 0;
+    vector<int> dice_order(dice.size(), rand() % dice.size());
+    
+    while (v_highest_count(dice_order) > 1) {
+        for (unsigned int i = 0; i < dice_order.size(); ++i) {
+            for (unsigned int j = 0; j < dice_order.size(); ++j) {
+                if (dice_order.at(i) == dice_order.at(j) && i != j) {
+                    dice_order.at(i) = rand() % dice.size();
+                }
+            }
         }
     }
 
-    board = {
-        {'B', 'O', 'O', 'F', 'E'},
-        {'L', 'D', 'N', 'F', 'I'},
-        {'C', 'S', 'P', 'D', 'W'},
-        {'T', 'C', 'N', 'E', 'W'},
-        {'A', 'Y', 'E', 'I', 'L'}};
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 5; ++j) {
+            board.at(i).at(j) = dice.at(dice_order.at(die)).at(rand() % dice.at(die).size());
+            ++die;
+        }
+    }
 }
 
 bool boggle::is_word(string input) {
