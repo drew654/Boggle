@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include <time.h>
+#include <sys/time.h>
 
 using std::cout, std::endl;
 using std::string, std::vector, std::pair;
@@ -29,9 +30,11 @@ int v_highest_count(vector<int> v) {
 }
 
 boggle::boggle() {
-    vector<vector<char>> vec(5, vector<char>(5));
-    board = vec;
+    vector<vector<char>> b(5, vector<char>(5));
+    board = b;
     this->shuffle();
+    vector<vector<string>> s(20, vector<string>(40, " "));
+    screen = s;
 }
 
 void boggle::print_board() {
@@ -322,5 +325,150 @@ bool boggle::partial_word_of(string piece, string whole) {
     }
     else {
         return false;
+    }
+}
+
+void boggle::play_game() {
+    initialize();
+    play();
+}
+
+void boggle::initialize() {
+    gettimeofday(&start_time, NULL);
+    write_board_to_screen();
+}
+
+void boggle::play() {
+    struct timeval current_time;
+    gettimeofday(&current_time, NULL);
+    elapsed_seconds = current_time.tv_sec - start_time.tv_sec + 1;
+    unsigned int old_seconds = elapsed_seconds - 1;
+    for (int i = 0; i < 30; ++i) {
+        cout << endl;
+    }
+    print_screen();
+    while (elapsed_seconds <= 120) {
+        gettimeofday(&current_time, NULL);
+        elapsed_seconds = current_time.tv_sec - start_time.tv_sec;
+        if (elapsed_seconds - old_seconds > 1) {
+            print_screen();
+            cout << endl;
+            old_seconds = elapsed_seconds - 1;
+        }
+    }
+}
+
+void boggle::print_screen() {
+    for (unsigned int i = 0; i < 50; ++i) {
+        cout << endl;
+    }
+    write_timer_to_screen();
+    cout << "┌";
+    for (unsigned int col = 0; col < screen.at(0).size() + 2; ++col) {
+        cout << "─";
+    }
+    cout << "┐" << endl;
+    for (unsigned int row = 0; row < screen.size(); ++row) {
+        cout << "│ ";
+        for (unsigned int col = 0; col < screen.at(row).size(); ++col) {
+            cout << screen.at(row).at(col);
+        }
+        cout << " │";
+        cout << endl;
+    }
+    cout << "└";
+    for (unsigned int col = 0; col < screen.at(0).size() + 2; ++col) {
+        cout << "─";
+    }
+    cout << "┘" << endl;
+}
+
+void boggle::write_board_to_screen() {
+    unsigned int r = 0;
+    unsigned int c = 0;
+    screen.at(r).at(c) = "┌";
+    ++c;
+    for (unsigned int col = 0; col < board.at(0).size() * 2 + 1; ++col) {
+        screen.at(r).at(c) = "─";
+        ++c;
+    }
+    screen.at(r).at(c) = "┐";
+    ++c;
+    ++r;
+
+    for (unsigned int row = 0; row < board.size(); ++row) {
+        c = 0;
+        screen.at(r).at(c) = "│";
+        ++c;
+        screen.at(r).at(c) = " ";
+        ++c;
+        
+        for (unsigned int col = 0; col < board.at(row).size(); ++col) {
+            screen.at(r).at(c) = board.at(row).at(col);
+            ++c;
+            if (col < board.at(row).size() - 1) {
+                screen.at(r).at(c) = " ";
+                ++c;
+            }
+        }
+
+        screen.at(r).at(c) = " ";
+        ++c;
+        screen.at(r).at(c) = "│";
+        ++c;
+        ++r;
+    }
+
+    c = 0;
+    screen.at(r).at(c) = "└";
+    ++c;
+    for (unsigned int col = 0; col < board.at(0).size() * 2 + 1; ++col) {
+        screen.at(r).at(c) = "─";
+        ++c;
+    }
+    screen.at(r).at(c) = "┘";
+    ++c;
+}
+
+void boggle::write_timer_to_screen() {
+    unsigned int r = 0;
+    unsigned int c = screen.at(0).size() - 9;
+    string s = "Time: ";
+    for (unsigned int i = 0; i < s.size(); ++i) {
+        screen.at(r).at(c + i) = s.at(i);
+    }
+    c += s.size();
+
+    unsigned int remaining_time = 120 - elapsed_seconds + 1;
+    if (remaining_time >= 100) {
+        screen.at(r).at(c) = std::to_string(remaining_time % 1000 / 100);
+        screen.at(r).at(c + 1) = std::to_string(remaining_time % 100 / 10);
+        screen.at(r).at(c + 2) = std::to_string(remaining_time % 10 / 1);
+    }
+    else if (remaining_time >= 10) {
+        screen.at(r).at(c) = std::to_string(remaining_time % 100 / 10);
+        screen.at(r).at(c + 1) = std::to_string(remaining_time % 10 / 1);
+        screen.at(r).at(c + 2) = " ";
+    }
+    else {
+        screen.at(r).at(c) = std::to_string(remaining_time % 10 / 1);
+        screen.at(r).at(c + 1) = " ";
+        screen.at(r).at(c + 2) = " ";
+    }
+}
+
+string boggle::uint_to_string(unsigned int input, unsigned int size) {
+    if (std::to_string(input).size() == size) {
+        return std::to_string(input);
+    }
+    else {
+        string s;
+        s = std::to_string(input);
+        for (unsigned int i = 0; i < s.size(); ++i) {
+            if (s.at(i) == '0') {
+                s.replace(i+1, 1, " ");
+            }
+        }
+        return s;
     }
 }

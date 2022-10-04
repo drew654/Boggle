@@ -8,10 +8,10 @@ class boggle {
     public:
         boggle();
         void shuffle();
-        float get_time();
         void print_board();
         void solve();
         void solve2();
+        void play_game();
     private:
         class mapped_word {
             public:
@@ -23,7 +23,14 @@ class boggle {
                 void print_board(std::vector<std::vector<char>> b);
         };
         std::vector<std::vector<char>> board;
-        float timer;
+        struct timeval start_time;
+        unsigned int elapsed_seconds;
+        void initialize();
+        void play();
+        void print_screen();
+        void write_board_to_screen();
+        void write_timer_to_screen();
+        std::vector<std::vector<std::string>> screen;
         std::vector<std::string> board_words;
         std::vector<std::string> player_words;
         bool is_word(std::string input);
@@ -35,6 +42,7 @@ class boggle {
         void search_for_word_at(unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur, std::string word);
         bool partial_word_of(std::string piece, std::string whole);
         bool word_in_board(std::string input);
+        std::string uint_to_string(unsigned int input, unsigned int size);
 };
 
 #endif
