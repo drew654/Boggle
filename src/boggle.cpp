@@ -33,7 +33,7 @@ boggle::boggle() {
     vector<vector<char>> b(5, vector<char>(5));
     board = b;
     this->shuffle();
-    vector<vector<string>> s(20, vector<string>(40, " "));
+    vector<vector<char>> s(20, vector<char>(40, ' '));
     screen = s;
 }
 
@@ -134,18 +134,18 @@ bool boggle::is_partial_word(string input) {
     return false;
 }
 
-void boggle::find_words_at(unsigned int row, unsigned int col, vector<string> &words, string cur) {
-    if (row >= board.size() || col >= board.at(0).size() || (!is_partial_word(cur) && cur != "")) {\
+void boggle::find_words_at(unsigned int row, unsigned int col, vector<mapped_word> &words, mapped_word cur) {
+    if (row >= board.size() || col >= board.at(0).size() || (!is_partial_word(cur.word) && cur.word != "")) {
         return;
     }
     else {
-        cur += tolower(board.at(row).at(col));
+        cur.word += tolower(board.at(row).at(col));
+        cur.letters.push_back({row, col});
     }
-    if (is_word(cur)) {
+    if (is_word(cur.word)) {
+        cout << "word: " << cur.word << endl;
         words.push_back(cur);
     }
-
-    cout << "cur: |" << cur << "|" << endl;
 
     // Sets - so that the current letter isn't used again
     char t = board.at(row).at(col);
@@ -166,55 +166,13 @@ void boggle::find_words_at(unsigned int row, unsigned int col, vector<string> &w
 }
 
 // TODO: Make it so that there are no duplicate words in the end
-vector<string> boggle::find_all_words() {
-    vector<string> words;
-    for (unsigned int row = 0; row < board.size(); ++row) {
-        for (unsigned int col = 0; col < board.at(0).size(); ++col) {
-            cout << "starting at: " << board.at(row).at(col) << endl;
-            find_words_at(row, col, words, "");
-        }
-    }
-    return words;
-}
-
-void boggle::find_words_at2(unsigned int row, unsigned int col, vector<mapped_word> &words, mapped_word cur) {
-    if (row >= board.size() || col >= board.at(0).size() || (!is_partial_word(cur.word) && cur.word != "")) {
-        return;
-    }
-    else {
-        cur.word += tolower(board.at(row).at(col));
-        cur.letters.push_back({row, col});
-    }
-    if (is_word(cur.word)) {
-        cout << "word: " << cur.word << endl;
-        words.push_back(cur);
-    }
-
-    // Sets - so that the current letter isn't used again
-    char t = board.at(row).at(col);
-    board.at(row).at(col) = '-';
-
-    find_words_at2(row - 1, col - 1, words, cur);
-    find_words_at2(row - 1, col, words, cur);
-    find_words_at2(row - 1, col + 1, words, cur);
-    find_words_at2(row, col + 1, words, cur);
-    find_words_at2(row + 1, col + 1, words, cur);
-    find_words_at2(row + 1, col, words, cur);
-    find_words_at2(row + 1, col - 1, words, cur);
-    find_words_at2(row, col - 1, words, cur);
-
-    board.at(row).at(col) = t;
-
-    return;
-}
-
-void boggle::find_all_words2() {
+void boggle::find_all_words() {
     vector<mapped_word> words;
     mapped_word cur;
     for (unsigned int row = 0; row < board.size(); ++row) {
         for (unsigned int col = 0; col < board.at(row).size(); ++col) {
             cout << "starting at: " << board.at(row).at(col) << endl;
-            find_words_at2(row, col, words, cur);
+            find_words_at(row, col, words, cur);
         }
     }
     cout << endl;
@@ -226,16 +184,7 @@ void boggle::find_all_words2() {
 }
 
 void boggle::solve() {
-    vector<string> s = find_all_words();
-    cout << endl;
-    cout << "result: " << endl;
-    for (auto i : s) {
-        cout << i << endl;
-    }
-}
-
-void boggle::solve2() {
-    find_all_words2();
+    find_all_words();
 }
 
 void boggle::mapped_word::print_board(vector<vector<char>> b) {
@@ -342,7 +291,6 @@ void boggle::play() {
     struct timeval current_time;
     gettimeofday(&current_time, NULL);
     elapsed_seconds = current_time.tv_sec - start_time.tv_sec + 1;
-    unsigned int old_seconds = elapsed_seconds - 1;
     for (int i = 0; i < 30; ++i) {
         cout << endl;
     }
@@ -350,19 +298,26 @@ void boggle::play() {
     while (elapsed_seconds <= 120) {
         gettimeofday(&current_time, NULL);
         elapsed_seconds = current_time.tv_sec - start_time.tv_sec;
-        if (elapsed_seconds - old_seconds > 1) {
-            print_screen();
-            cout << endl;
-            old_seconds = elapsed_seconds - 1;
-        }
+
+        string input;
+        cout << "Enter a word: ";
+        std::cin >> input;
+        // if (word_in_board(input)) {
+        //     player_words.push_back(input);
+        // }
+        // else {
+        //     wrong_words.push_back(input);
+        // }
+        inputted_words.push_back(input);
+        print_screen();
     }
 }
 
 void boggle::print_screen() {
-    for (unsigned int i = 0; i < 50; ++i) {
-        cout << endl;
-    }
     write_timer_to_screen();
+    // write_wrong_words_to_screen();
+    // write_player_words_to_screen();
+    write_inputted_words_to_screen();
     cout << "┌";
     for (unsigned int col = 0; col < screen.at(0).size() + 2; ++col) {
         cout << "─";
@@ -371,7 +326,15 @@ void boggle::print_screen() {
     for (unsigned int row = 0; row < screen.size(); ++row) {
         cout << "│ ";
         for (unsigned int col = 0; col < screen.at(row).size(); ++col) {
-            cout << screen.at(row).at(col);
+            switch (screen.at(row).at(col)) {
+                case '!': cout << "┌"; break;
+                case '@': cout << "─"; break;
+                case '#': cout << "┐"; break;
+                case '$': cout << "│"; break;
+                case '%': cout << "┘"; break;
+                case '^': cout << "└"; break;
+                default: cout << screen.at(row).at(col);
+            }
         }
         cout << " │";
         cout << endl;
@@ -386,47 +349,47 @@ void boggle::print_screen() {
 void boggle::write_board_to_screen() {
     unsigned int r = 0;
     unsigned int c = 0;
-    screen.at(r).at(c) = "┌";
+    screen.at(r).at(c) = '!';
     ++c;
     for (unsigned int col = 0; col < board.at(0).size() * 2 + 1; ++col) {
-        screen.at(r).at(c) = "─";
+        screen.at(r).at(c) = '@';
         ++c;
     }
-    screen.at(r).at(c) = "┐";
+    screen.at(r).at(c) = '#';
     ++c;
     ++r;
 
     for (unsigned int row = 0; row < board.size(); ++row) {
         c = 0;
-        screen.at(r).at(c) = "│";
+        screen.at(r).at(c) = '$';
         ++c;
-        screen.at(r).at(c) = " ";
+        screen.at(r).at(c) = ' ';
         ++c;
         
         for (unsigned int col = 0; col < board.at(row).size(); ++col) {
             screen.at(r).at(c) = board.at(row).at(col);
             ++c;
             if (col < board.at(row).size() - 1) {
-                screen.at(r).at(c) = " ";
+                screen.at(r).at(c) = ' ';
                 ++c;
             }
         }
 
-        screen.at(r).at(c) = " ";
+        screen.at(r).at(c) = ' ';
         ++c;
-        screen.at(r).at(c) = "│";
+        screen.at(r).at(c) = '$';
         ++c;
         ++r;
     }
 
     c = 0;
-    screen.at(r).at(c) = "└";
+    screen.at(r).at(c) = '^';
     ++c;
     for (unsigned int col = 0; col < board.at(0).size() * 2 + 1; ++col) {
-        screen.at(r).at(c) = "─";
+        screen.at(r).at(c) = '@';
         ++c;
     }
-    screen.at(r).at(c) = "┘";
+    screen.at(r).at(c) = '%';
     ++c;
 }
 
@@ -441,34 +404,76 @@ void boggle::write_timer_to_screen() {
 
     unsigned int remaining_time = 120 - elapsed_seconds + 1;
     if (remaining_time >= 100) {
-        screen.at(r).at(c) = std::to_string(remaining_time % 1000 / 100);
-        screen.at(r).at(c + 1) = std::to_string(remaining_time % 100 / 10);
-        screen.at(r).at(c + 2) = std::to_string(remaining_time % 10 / 1);
+        screen.at(r).at(c) = (remaining_time % 1000 / 100) + '0';
+        screen.at(r).at(c + 1) = (remaining_time % 100 / 10) + '0';
+        screen.at(r).at(c + 2) = (remaining_time % 10 / 1) + '0';
     }
     else if (remaining_time >= 10) {
-        screen.at(r).at(c) = std::to_string(remaining_time % 100 / 10);
-        screen.at(r).at(c + 1) = std::to_string(remaining_time % 10 / 1);
-        screen.at(r).at(c + 2) = " ";
+        screen.at(r).at(c) = (remaining_time % 100 / 10) + '0';
+        screen.at(r).at(c + 1) = (remaining_time % 10 / 1) + '0';
+        screen.at(r).at(c + 2) = ' ';
     }
     else {
-        screen.at(r).at(c) = std::to_string(remaining_time % 10 / 1);
-        screen.at(r).at(c + 1) = " ";
-        screen.at(r).at(c + 2) = " ";
+        screen.at(r).at(c) = (remaining_time % 10 / 1) + '0';
+        screen.at(r).at(c + 1) = ' ';
+        screen.at(r).at(c + 2) = ' ';
     }
 }
 
-string boggle::uint_to_string(unsigned int input, unsigned int size) {
-    if (std::to_string(input).size() == size) {
-        return std::to_string(input);
+void boggle::write_wrong_words_to_screen() {
+    unsigned int r = 2;
+    unsigned int c = 15;
+    string s = "Incorrect:";
+    for (unsigned int i = 0; i < s.size(); ++i) {
+        screen.at(r).at(c + i) = s.at(i);
     }
-    else {
-        string s;
-        s = std::to_string(input);
-        for (unsigned int i = 0; i < s.size(); ++i) {
-            if (s.at(i) == '0') {
-                s.replace(i+1, 1, " ");
-            }
+    ++r;
+    
+    for (unsigned int i = 0; i < wrong_words.size(); ++i) {
+        s = wrong_words.at(i);
+        for (unsigned int j = 0; j < s.size(); ++j) {
+            screen.at(r).at(c + j) = s.at(j);
         }
-        return s;
+        ++r;
+    }
+}
+
+void boggle::write_player_words_to_screen() {
+    unsigned int r = 2;
+    unsigned int c = 30;
+    string s = "Correct:";
+    for (unsigned int i = 0; i < s.size(); ++i) {
+        screen.at(r).at(c + i) = s.at(i);
+    }
+    ++r;
+
+    for (unsigned int i = 0; i < wrong_words.size(); ++i) {
+        s = wrong_words.at(i);
+        for (unsigned int j = 0; j < s.size(); ++j) {
+            screen.at(r).at(c + j) = s.at(j);
+        }
+        ++r;
+    }
+}
+
+void boggle::write_inputted_words_to_screen() {
+    unsigned int r = 2;
+    unsigned int c = 15;
+    string s = "Inputted:";
+    for (unsigned int i = 0; i < s.size(); ++i) {
+        screen.at(r).at(c + i) = s.at(i);
+    }
+    ++r;
+
+    unsigned int start_point = 0;
+    if (inputted_words.size() > 17) {
+        start_point = inputted_words.size() - 17;
+    }
+    for (unsigned int i = 0; i < inputted_words.size() && i < 17; ++i) {
+        s = inputted_words.at(i + start_point);
+        for (unsigned int j = 0; j < s.size() && j < 25; ++j) {
+            screen.at(r).at(c + j) = s.at(j);
+        }
+        ++r;
     }
 }

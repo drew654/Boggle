@@ -10,7 +10,6 @@ class boggle {
         void shuffle();
         void print_board();
         void solve();
-        void solve2();
         void play_game();
     private:
         class mapped_word {
@@ -30,19 +29,21 @@ class boggle {
         void print_screen();
         void write_board_to_screen();
         void write_timer_to_screen();
-        std::vector<std::vector<std::string>> screen;
+        void write_wrong_words_to_screen();
+        void write_player_words_to_screen();
+        void write_inputted_words_to_screen();
+        std::vector<std::vector<char>> screen;
         std::vector<std::string> board_words;
         std::vector<std::string> player_words;
+        std::vector<std::string> wrong_words;
+        std::vector<std::string> inputted_words;
         bool is_word(std::string input);
         bool is_partial_word(std::string input);
-        void find_words_at(unsigned int row, unsigned int col, std::vector<std::string> &words, std::string cur);
-        std::vector<std::string> find_all_words();
-        void find_words_at2(unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur);
-        void find_all_words2();
+        void find_words_at(unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur);
+        void find_all_words();
         void search_for_word_at(unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur, std::string word);
         bool partial_word_of(std::string piece, std::string whole);
         bool word_in_board(std::string input);
-        std::string uint_to_string(unsigned int input, unsigned int size);
 };
 
 #endif
