@@ -1,6 +1,4 @@
 #include <iostream>
-// #include <time.h>
-// #include <sys/time.h>
 #include "boggle.h"
 
 using std::cout, std::endl;

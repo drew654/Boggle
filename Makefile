@@ -3,7 +3,7 @@ IDIR=$(PWD)/include
 ODIR=$(PWD)/obj
 SDIR=$(PWD)/src
 DEPS=$(IDIR)/boggle.h
-CXXFLAGS=-std=c++17 -O3 -Wall -Wextra -g -I$(IDIR)
+CXXFLAGS=-pthread -std=c++17 -O3 -Wall -Wextra -g -I$(IDIR)
 
 .PHONY: all
 all: $(ODIR)/main

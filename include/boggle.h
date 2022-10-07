@@ -26,6 +26,8 @@ class boggle {
         unsigned int elapsed_seconds;
         void initialize();
         void play();
+        void play_visible();
+        void play_invisible();
         void print_screen();
         void write_board_to_screen();
         void write_timer_to_screen();
