@@ -287,7 +287,7 @@ void boggle::play_game() {
 
 void boggle::initialize() {
     gettimeofday(&start_time, NULL);
-    write_board_to_screen();
+    write_board_to_screen(0, 0);
 }
 
 void boggle::play() {
@@ -335,10 +335,10 @@ void boggle::play_invisible() {
 }
 
 void boggle::print_screen() {
-    write_timer_to_screen();
-    write_wrong_words_to_screen();
-    write_player_words_to_screen();
-    write_inputted_words_to_screen();
+    write_timer_to_screen(0, screen.at(0).size() - 9);
+    write_wrong_words_to_screen(2, 17, 30, 45);
+    write_player_words_to_screen(2, 17, 15, 30);
+    write_inputted_words_to_screen(2, 17, 45, 60);
     cout << "┌";
     for (unsigned int col = 0; col < screen.at(0).size() + 2; ++col) {
         cout << "─";
@@ -367,9 +367,7 @@ void boggle::print_screen() {
     cout << "┘" << endl;
 }
 
-void boggle::write_board_to_screen() {
-    unsigned int r = 0;
-    unsigned int c = 0;
+void boggle::write_board_to_screen(unsigned int r, unsigned int c) {
     screen.at(r).at(c) = '!';
     ++c;
     for (unsigned int col = 0; col < board.at(0).size() * 2 + 1; ++col) {
@@ -414,9 +412,7 @@ void boggle::write_board_to_screen() {
     ++c;
 }
 
-void boggle::write_timer_to_screen() {
-    unsigned int r = 0;
-    unsigned int c = screen.at(0).size() - 9;
+void boggle::write_timer_to_screen(unsigned int r, unsigned int c) {
     string s = "Time: ";
     for (unsigned int i = 0; i < s.size(); ++i) {
         screen.at(r).at(c + i) = s.at(i);
@@ -441,9 +437,10 @@ void boggle::write_timer_to_screen() {
     }
 }
 
-void boggle::write_wrong_words_to_screen() {
-    unsigned int r = 2;
-    unsigned int c = 30;
+void boggle::write_wrong_words_to_screen(unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col) {
+    unsigned int r = top_row;
+    unsigned int c = left_col;
+
     string s = "Incorrect:";
     for (unsigned int i = 0; i < s.size(); ++i) {
         screen.at(r).at(c + i) = s.at(i);
@@ -451,13 +448,13 @@ void boggle::write_wrong_words_to_screen() {
     ++r;
 
     unsigned int start_point = 0;
-    if (wrong_words.size() > 17) {
-        start_point = wrong_words.size() - 17;
+    if (wrong_words.size() > bottom_row) {
+        start_point = wrong_words.size() - bottom_row;
     }
-    for (unsigned int i = 0; i < 17; ++i) {
+    for (unsigned int i = 0; i < bottom_row; ++i) {
         if (i < wrong_words.size()) {
             s = wrong_words.at(i + start_point);
-            for (unsigned int j = 0; j < 14; ++j) {
+            for (unsigned int j = 0; j < right_col - left_col; ++j) {
                 if (j < s.size()) {
                     screen.at(r + i).at(c + j) = s.at(j);
                 }
@@ -467,16 +464,17 @@ void boggle::write_wrong_words_to_screen() {
             }
         }
         else {
-            for (unsigned int j = 0; j < 14; ++j) {
+            for (unsigned int j = 0; j < right_col - left_col; ++j) {
                 screen.at(r + i).at(c + j) = ' ';
             }
         }
     }
 }
 
-void boggle::write_player_words_to_screen() {
-    unsigned int r = 2;
-    unsigned int c = 15;
+void boggle::write_player_words_to_screen(unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col) {
+    unsigned int r = top_row;
+    unsigned int c = left_col;
+
     string s = "Correct:";
     for (unsigned int i = 0; i < s.size(); ++i) {
         screen.at(r).at(c + i) = s.at(i);
@@ -484,13 +482,13 @@ void boggle::write_player_words_to_screen() {
     ++r;
 
     unsigned int start_point = 0;
-    if (player_words.size() > 17) {
-        start_point = player_words.size() - 17;
+    if (player_words.size() > bottom_row) {
+        start_point = player_words.size() - bottom_row;
     }
-    for (unsigned int i = 0; i < 17; ++i) {
+    for (unsigned int i = 0; i < bottom_row; ++i) {
         if (i < player_words.size()) {
             s = player_words.at(i + start_point);
-            for (unsigned int j = 0; j < 14; ++j) {
+            for (unsigned int j = 0; j < right_col - left_col; ++j) {
                 if (j < s.size()) {
                     screen.at(r + i).at(c + j) = s.at(j);
                 }
@@ -500,16 +498,17 @@ void boggle::write_player_words_to_screen() {
             }
         }
         else {
-            for (unsigned int j = 0; j < 14; ++j) {
+            for (unsigned int j = 0; j < right_col - left_col; ++j) {
                 screen.at(r + i).at(c + j) = ' ';
             }
         }
     }
 }
 
-void boggle::write_inputted_words_to_screen() {
-    unsigned int r = 2;
-    unsigned int c = 45;
+void boggle::write_inputted_words_to_screen(unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col) {
+    unsigned int r = top_row;
+    unsigned int c = left_col;
+
     string s = "Inputted:";
     for (unsigned int i = 0; i < s.size(); ++i) {
         screen.at(r).at(c + i) = s.at(i);
@@ -517,13 +516,13 @@ void boggle::write_inputted_words_to_screen() {
     ++r;
 
     unsigned int start_point = 0;
-    if (inputted_words.size() > 17) {
-        start_point = inputted_words.size() - 17;
+    if (inputted_words.size() > bottom_row) {
+        start_point = inputted_words.size() - bottom_row;
     }
-    for (unsigned int i = 0; i < 17; ++i) {
+    for (unsigned int i = 0; i < bottom_row; ++i) {
         if (i < inputted_words.size()) {
             s = inputted_words.at(i + start_point);
-            for (unsigned int j = 0; j < 14; ++j) {
+            for (unsigned int j = 0; j < right_col - left_col; ++j) {
                 if (j < s.size()) {
                     screen.at(r + i).at(c + j) = s.at(j);
                 }
@@ -533,7 +532,7 @@ void boggle::write_inputted_words_to_screen() {
             }
         }
         else {
-            for (unsigned int j = 0; j < 14; ++j) {
+            for (unsigned int j = 0; j < right_col - left_col; ++j) {
                 screen.at(r + i).at(c + j) = ' ';
             }
         }

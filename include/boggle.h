@@ -29,11 +29,11 @@ class boggle {
         void play_visible();
         void play_invisible();
         void print_screen();
-        void write_board_to_screen();
-        void write_timer_to_screen();
-        void write_wrong_words_to_screen();
-        void write_player_words_to_screen();
-        void write_inputted_words_to_screen();
+        void write_board_to_screen(unsigned int r, unsigned int c);
+        void write_timer_to_screen(unsigned int r, unsigned int c);
+        void write_wrong_words_to_screen(unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col);
+        void write_player_words_to_screen(unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col);
+        void write_inputted_words_to_screen(unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col);
         std::vector<std::vector<char>> screen;
         std::vector<std::string> board_words;
         std::vector<std::string> player_words;
