@@ -310,6 +310,18 @@ void boggle::play() {
     std::thread y([this] { this->play_invisible(); });
     y.join();
     x.join();
+    state = checking_words;
+    while (inputted_words.size() > 0) {
+        if (word_in_board(inputted_words.at(0))) {
+            player_words.push_back(inputted_words.at(0));
+            inputted_words.erase(inputted_words.begin());
+        }
+        else {
+            wrong_words.push_back(inputted_words.at(0));
+            inputted_words.erase(inputted_words.begin());
+        }
+        print_screen();
+    }
 }
 
 void boggle::play_visible() {
@@ -359,6 +371,13 @@ void boggle::print_screen() {
         write_player_words_to_screen(2, 17, 15, 30);
         write_inputted_words_to_screen(2, 17, 45, 60);
     }
+    else if (state == checking_words) {
+        clear_screen();
+        write_board_to_screen(0, 0);
+        write_wrong_words_to_screen(2, 17, 30, 45);
+        write_player_words_to_screen(2, 17, 15, 30);
+        write_inputted_words_to_screen(2, 17, 45, 60);
+    }
     
     cout << "┌";
     for (unsigned int col = 0; col < screen.at(0).size() + 2; ++col) {
@@ -386,6 +405,14 @@ void boggle::print_screen() {
         cout << "─";
     }
     cout << "┘" << endl;
+}
+
+void boggle::clear_screen() {
+    for (unsigned int row = 0; row < screen.size(); ++row) {
+        for (unsigned int col = 0; col < screen.at(row).size(); ++col) {
+            screen.at(row).at(col) = ' ';
+        }
+    }
 }
 
 void boggle::write_title_to_screen() {

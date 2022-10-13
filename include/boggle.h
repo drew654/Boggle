@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-enum screen_state {title, game, post_game};
+enum screen_state {title, game, post_game, checking_words};
 
 class boggle {
     public:
@@ -33,6 +33,7 @@ class boggle {
         void play_visible();
         void play_invisible();
         void print_screen();
+        void clear_screen();
         void write_title_to_screen();
         void write_board_to_screen(unsigned int r, unsigned int c);
         void write_timer_to_screen(unsigned int r, unsigned int c);
