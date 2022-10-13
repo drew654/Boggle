@@ -38,6 +38,7 @@ boggle::boggle() {
     vector<vector<char>> s(20, vector<char>(60, ' '));
     screen = s;
     elapsed_seconds = 0;
+    state = title;
 }
 
 void boggle::print_board() {
@@ -281,13 +282,27 @@ bool boggle::partial_word_of(string piece, string whole) {
 }
 
 void boggle::play_game() {
-    initialize();
+    start_game();
     play();
 }
 
-void boggle::initialize() {
+void boggle::boot_up() {
+    print_screen();
+    while (state == title) {
+        string input;
+        cout << "What would you like to do? (play)" << endl;
+        std::cin >> input;
+        if (input == "play") {
+            state = game;
+            play_game();
+        }
+    }
+}
+
+void boggle::start_game() {
     gettimeofday(&start_time, NULL);
     write_board_to_screen(0, 0);
+    state = game;
 }
 
 void boggle::play() {
@@ -335,10 +350,16 @@ void boggle::play_invisible() {
 }
 
 void boggle::print_screen() {
-    write_timer_to_screen(0, screen.at(0).size() - 9);
-    write_wrong_words_to_screen(2, 17, 30, 45);
-    write_player_words_to_screen(2, 17, 15, 30);
-    write_inputted_words_to_screen(2, 17, 45, 60);
+    if (state == title) {
+        write_title_to_screen();
+    }
+    else if (state == game) {
+        write_timer_to_screen(0, screen.at(0).size() - 9);
+        write_wrong_words_to_screen(2, 17, 30, 45);
+        write_player_words_to_screen(2, 17, 15, 30);
+        write_inputted_words_to_screen(2, 17, 45, 60);
+    }
+    
     cout << "┌";
     for (unsigned int col = 0; col < screen.at(0).size() + 2; ++col) {
         cout << "─";
@@ -365,6 +386,34 @@ void boggle::print_screen() {
         cout << "─";
     }
     cout << "┘" << endl;
+}
+
+void boggle::write_title_to_screen() {
+    vector<vector<char>> t = {{'!', '@', '@', '@', '@', '@', '@', '@', '@', '#',},
+                              {'$', ' ', 'B', 'o', 'g', 'g', 'l', 'e', ' ', '$',},
+                              {'^', '@', '@', '@', '@', '@', '@', '@', '@', '%'}};
+
+    unsigned int r = screen.size() / 3;
+    unsigned int c = (screen.at(r).size() / 2) - (t.at(0).size() / 2);
+    for (unsigned int row = 0; row < t.size(); ++row) {
+        for (unsigned int col = 0; col < t.at(row).size(); ++col) {
+            screen.at(r + row).at(c + col) = t.at(row).at(col);
+        }
+    }
+
+    string line = "But it's in the command line";
+    r += t.size() + 1;
+    c = (screen.at(r).size() / 2) - (line.size() / 2);
+    for (unsigned int col = 0; col < line.size(); ++col) {
+        screen.at(r).at(c + col) = line.at(col);
+    }
+
+    line = "...so good luck.";
+    r += 3;
+    c = (screen.at(r).size() / 2) - (line.size() / 2);
+    for (unsigned int col = 0; col < line.size(); ++col) {
+        screen.at(r).at(c + col) = line.at(col);
+    }
 }
 
 void boggle::write_board_to_screen(unsigned int r, unsigned int c) {

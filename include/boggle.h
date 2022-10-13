@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+enum screen_state {title, game, post_game};
+
 class boggle {
     public:
         boggle();
@@ -11,6 +13,7 @@ class boggle {
         void print_board();
         void solve();
         void play_game();
+        void boot_up();
     private:
         class mapped_word {
             public:
@@ -21,14 +24,16 @@ class boggle {
                 std::vector<std::vector<char>> word_chart();
                 void print_board(std::vector<std::vector<char>> b);
         };
+        screen_state state;
         std::vector<std::vector<char>> board;
         struct timeval start_time;
         unsigned int elapsed_seconds;
-        void initialize();
+        void start_game();
         void play();
         void play_visible();
         void play_invisible();
         void print_screen();
+        void write_title_to_screen();
         void write_board_to_screen(unsigned int r, unsigned int c);
         void write_timer_to_screen(unsigned int r, unsigned int c);
         void write_wrong_words_to_screen(unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col);
