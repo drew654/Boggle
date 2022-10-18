@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-enum screen_state {title, game, post_game, checking_words};
+enum screen_state {title, game, post_game, checking_words, view_rules};
 
 class boggle {
     public:
@@ -34,6 +34,7 @@ class boggle {
         void play_invisible();
         void print_screen();
         void clear_screen();
+        void write_text_box_to_screen(std::string input, unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col);
         void write_title_to_screen();
         void write_board_to_screen(unsigned int r, unsigned int c);
         void write_timer_to_screen(unsigned int r, unsigned int c);
@@ -49,7 +50,7 @@ class boggle {
         bool is_partial_word(std::string input);
         void find_words_at(unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur);
         void find_all_words();
-        void search_for_word_at(unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur, std::string word);
+        void search_for_word_at(std::vector<std::vector<char>> b, unsigned int row, unsigned int col, std::vector<mapped_word> & words, mapped_word cur, std::string word);
         bool partial_word_of(std::string piece, std::string whole);
         bool word_in_board(std::string input);
 };

@@ -228,7 +228,8 @@ bool boggle::word_in_board(string input) {
     }
 
     for (auto i : start_points) {
-        search_for_word_at(i.first, i.second, words, cur, input);
+        vector<vector<char>> b = board;
+        search_for_word_at(b, i.first, i.second, words, cur, input);
     }
 
     for (auto i : words) {
@@ -239,7 +240,7 @@ bool boggle::word_in_board(string input) {
     return false;
 }
 
-void boggle::search_for_word_at(unsigned int row, unsigned int col, vector<mapped_word> &words, mapped_word cur, string word) {
+void boggle::search_for_word_at(vector<vector<char>> b, unsigned int row, unsigned int col, vector<mapped_word> &words, mapped_word cur, string word) {
     if (row >= board.size() || col >= board.at(row).size() || (!is_partial_word(cur.word) && cur.word != "")) {
         return;
     }
@@ -255,19 +256,19 @@ void boggle::search_for_word_at(unsigned int row, unsigned int col, vector<mappe
     }
 
     // Sets - so that the current letter isn't used again
-    char t = board.at(row).at(col);
-    board.at(row).at(col) = '-';
+    char t = b.at(row).at(col);
+    b.at(row).at(col) = '-';
 
-    search_for_word_at(row - 1, col - 1, words, cur, word);
-    search_for_word_at(row - 1, col, words, cur, word);
-    search_for_word_at(row - 1, col + 1, words, cur, word);
-    search_for_word_at(row, col + 1, words, cur, word);
-    search_for_word_at(row + 1, col + 1, words, cur, word);
-    search_for_word_at(row + 1, col, words, cur, word);
-    search_for_word_at(row + 1, col - 1, words, cur, word);
-    search_for_word_at(row, col - 1, words, cur, word);
+    search_for_word_at(b, row - 1, col - 1, words, cur, word);
+    search_for_word_at(b, row - 1, col, words, cur, word);
+    search_for_word_at(b, row - 1, col + 1, words, cur, word);
+    search_for_word_at(b, row, col + 1, words, cur, word);
+    search_for_word_at(b, row + 1, col + 1, words, cur, word);
+    search_for_word_at(b, row + 1, col, words, cur, word);
+    search_for_word_at(b, row + 1, col - 1, words, cur, word);
+    search_for_word_at(b, row, col - 1, words, cur, word);
 
-    board.at(row).at(col) = t;
+    b.at(row).at(col) = t;
 
     return;
 }
@@ -288,14 +289,26 @@ void boggle::play_game() {
 
 void boggle::boot_up() {
     print_screen();
-    while (state == title) {
+    while (state == title || state == view_rules) {
         string input;
-        cout << "What would you like to do? (play)" << endl;
-        std::cin >> input;
+        if (state == title) {
+            cout << "What would you like to do? (play, view rules)" << endl;
+        }
+        else if (state == view_rules) {
+            cout << "What would you like to do? (play, title screen)" << endl;
+        }
+        getline(std::cin, input);
         if (input == "play") {
             state = game;
             play_game();
         }
+        else if (input == "view rules") {
+            state = view_rules;
+        }
+        else if (input == "title screen") {
+            state = title;
+        }
+        print_screen();
     }
 }
 
@@ -363,9 +376,12 @@ void boggle::play_invisible() {
 
 void boggle::print_screen() {
     if (state == title) {
+        clear_screen();
         write_title_to_screen();
     }
     else if (state == game) {
+        clear_screen();
+        write_board_to_screen(0, 0);
         write_timer_to_screen(0, screen.at(0).size() - 9);
         write_wrong_words_to_screen(2, 17, 30, 45);
         write_player_words_to_screen(2, 17, 15, 30);
@@ -377,6 +393,11 @@ void boggle::print_screen() {
         write_wrong_words_to_screen(2, 17, 30, 45);
         write_player_words_to_screen(2, 17, 15, 30);
         write_inputted_words_to_screen(2, 17, 45, 60);
+    }
+    else if (state == view_rules) {
+        clear_screen();
+        string input = "You have two minutes to type as many words as you can.\n\nHere are the requirements for words:\n\nWords must be at least three letters in length.\n\nEach letter after the first must be a horizontal, vertical, or diagonal neighbor of the one before it.\n\nNo individual letter on the board may be used more than\nonce in a word.\n\nNo capitalized or hyphenated words are allowed.";
+        write_text_box_to_screen(input, 0, screen.size() - 1, 0, screen.at(0).size() - 1);
     }
     
     cout << "┌";
@@ -411,6 +432,27 @@ void boggle::clear_screen() {
     for (unsigned int row = 0; row < screen.size(); ++row) {
         for (unsigned int col = 0; col < screen.at(row).size(); ++col) {
             screen.at(row).at(col) = ' ';
+        }
+    }
+}
+
+void boggle::write_text_box_to_screen(string input, unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col) {
+    unsigned int i = 0;
+    for (unsigned int r = top_row; r <= bottom_row && i < input.size(); ++r) {
+        for (unsigned int c = left_col; c <= right_col && i < input.size(); ++c) {
+            if (input.at(i) == '\n') {
+                ++r;
+                c = left_col - 1;
+            }
+            else {
+                if (c == right_col && input.at(i) != ' ') {
+                    screen.at(r).at(c) = '-';
+                    ++r;
+                    c = left_col;
+                }
+                screen.at(r).at(c) = input.at(i);
+            }
+            ++i;
         }
     }
 }
