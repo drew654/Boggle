@@ -28,6 +28,7 @@ class boggle {
         std::vector<std::vector<char>> board;
         struct timeval start_time;
         unsigned int elapsed_seconds;
+        void update_time();
         void start_game();
         void play();
         void play_visible();
@@ -53,6 +54,7 @@ class boggle {
         void search_for_word_at(std::vector<std::vector<char>> b, unsigned int row, unsigned int col, std::vector<mapped_word> & words, mapped_word cur, std::string word);
         bool partial_word_of(std::string piece, std::string whole);
         bool word_in_board(std::string input);
+        void remove_duplicate_of_last(std::vector<std::string>& input);
 };
 
 #endif

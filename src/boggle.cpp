@@ -323,15 +323,18 @@ void boggle::play() {
     std::thread y([this] { this->play_invisible(); });
     y.join();
     x.join();
+    
     state = checking_words;
     while (inputted_words.size() > 0) {
         if (word_in_board(inputted_words.at(0))) {
             player_words.push_back(inputted_words.at(0));
             inputted_words.erase(inputted_words.begin());
+            remove_duplicate_of_last(player_words);
         }
         else {
             wrong_words.push_back(inputted_words.at(0));
             inputted_words.erase(inputted_words.begin());
+            remove_duplicate_of_last(wrong_words);
         }
         print_screen();
     }
@@ -346,20 +349,19 @@ void boggle::play_visible() {
     }
     print_screen();
     while (elapsed_seconds <= 120) {
-        gettimeofday(&current_time, NULL);
-        elapsed_seconds = current_time.tv_sec - start_time.tv_sec;
-
         string input;
         cout << "Enter a word: ";
         std::cin >> input;
         inputted_words.push_back(input);
+        gettimeofday(&current_time, NULL);
+        elapsed_seconds = current_time.tv_sec - start_time.tv_sec;
         print_screen();
     }
 }
 
 void boggle::play_invisible() {
-    while (elapsed_seconds < 120) {
-        std::this_thread::sleep_for(0.01s);
+    while (elapsed_seconds <= 120) {
+        std::this_thread::sleep_for(0.1s);
         if (inputted_words.size() > 0) {
             if (word_in_board(inputted_words.at(0))) {
                 player_words.push_back(inputted_words.at(0));
@@ -593,7 +595,7 @@ void boggle::write_player_words_to_screen(unsigned int top_row, unsigned int bot
     unsigned int r = top_row;
     unsigned int c = left_col;
 
-    string s = "Correct:";
+    string s = "Correct (" + std::to_string(player_words.size()) + "): ";
     for (unsigned int i = 0; i < s.size(); ++i) {
         screen.at(r).at(c + i) = s.at(i);
     }
@@ -653,6 +655,14 @@ void boggle::write_inputted_words_to_screen(unsigned int top_row, unsigned int b
             for (unsigned int j = 0; j < right_col - left_col; ++j) {
                 screen.at(r + i).at(c + j) = ' ';
             }
+        }
+    }
+}
+
+void boggle::remove_duplicate_of_last(vector<string>& input) {
+    for (unsigned int i = 0; i < input.size() - 1; ++i) {
+        if (input.at(i) == input.at(input.size() - 1)) {
+            input.erase(input.begin() + i);
         }
     }
 }
