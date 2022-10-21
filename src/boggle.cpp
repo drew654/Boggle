@@ -138,12 +138,12 @@ bool boggle::is_partial_word(string input) {
     return false;
 }
 
-void boggle::find_words_at(unsigned int row, unsigned int col, vector<mapped_word> &words, mapped_word cur) {
-    if (row >= board.size() || col >= board.at(0).size() || (!is_partial_word(cur.word) && cur.word != "")) {
+void boggle::find_words_at(vector<vector<char>> b, unsigned int row, unsigned int col, vector<mapped_word> &words, mapped_word cur) {
+    if (row >= b.size() || col >= b.at(0).size() || (!is_partial_word(cur.word) && cur.word != "")) {
         return;
     }
     else {
-        cur.word += tolower(board.at(row).at(col));
+        cur.word += tolower(b.at(row).at(col));
         cur.letters.push_back({row, col});
     }
     if (is_word(cur.word)) {
@@ -152,19 +152,19 @@ void boggle::find_words_at(unsigned int row, unsigned int col, vector<mapped_wor
     }
 
     // Sets - so that the current letter isn't used again
-    char t = board.at(row).at(col);
-    board.at(row).at(col) = '-';
+    char t = b.at(row).at(col);
+    b.at(row).at(col) = '-';
 
-    find_words_at(row - 1, col - 1, words, cur);
-    find_words_at(row - 1, col, words, cur);
-    find_words_at(row - 1, col + 1, words, cur);
-    find_words_at(row, col + 1, words, cur);
-    find_words_at(row + 1, col + 1, words, cur);
-    find_words_at(row + 1, col, words, cur);
-    find_words_at(row + 1, col - 1, words, cur);
-    find_words_at(row, col - 1, words, cur);
+    find_words_at(b, row - 1, col - 1, words, cur);
+    find_words_at(b, row - 1, col, words, cur);
+    find_words_at(b, row - 1, col + 1, words, cur);
+    find_words_at(b, row, col + 1, words, cur);
+    find_words_at(b, row + 1, col + 1, words, cur);
+    find_words_at(b, row + 1, col, words, cur);
+    find_words_at(b, row + 1, col - 1, words, cur);
+    find_words_at(b, row, col - 1, words, cur);
 
-    board.at(row).at(col) = t;
+    b.at(row).at(col) = t;
 
     return;
 }
@@ -173,18 +173,72 @@ void boggle::find_words_at(unsigned int row, unsigned int col, vector<mapped_wor
 void boggle::find_all_words() {
     vector<mapped_word> words;
     mapped_word cur;
-    for (unsigned int row = 0; row < board.size(); ++row) {
-        for (unsigned int col = 0; col < board.at(row).size(); ++col) {
-            cout << "starting at: " << board.at(row).at(col) << endl;
-            find_words_at(row, col, words, cur);
-        }
-    }
-    cout << endl;
+
+    std::thread t0([this, &words, cur] {this->find_words_at(board, 0, 0, words, cur); });
+    std::thread t1([this, &words, cur] {this->find_words_at(board, 0, 1, words, cur); });
+    std::thread t2([this, &words, cur] {this->find_words_at(board, 0, 2, words, cur); });
+    std::thread t3([this, &words, cur] {this->find_words_at(board, 0, 3, words, cur); });
+    std::thread t4([this, &words, cur] {this->find_words_at(board, 0, 4, words, cur); });
+
+    std::thread t5([this, &words, cur] {this->find_words_at(board, 1, 0, words, cur); });
+    std::thread t6([this, &words, cur] {this->find_words_at(board, 1, 1, words, cur); });
+    std::thread t7([this, &words, cur] {this->find_words_at(board, 1, 2, words, cur); });
+    std::thread t8([this, &words, cur] {this->find_words_at(board, 1, 3, words, cur); });
+    std::thread t9([this, &words, cur] {this->find_words_at(board, 1, 4, words, cur); });
+
+    std::thread t10([this, &words, cur] {this->find_words_at(board, 2, 0, words, cur); });
+    std::thread t11([this, &words, cur] {this->find_words_at(board, 2, 1, words, cur); });
+    std::thread t12([this, &words, cur] {this->find_words_at(board, 2, 2, words, cur); });
+    std::thread t13([this, &words, cur] {this->find_words_at(board, 2, 3, words, cur); });
+    std::thread t14([this, &words, cur] {this->find_words_at(board, 2, 4, words, cur); });
+
+    std::thread t15([this, &words, cur] {this->find_words_at(board, 3, 0, words, cur); });
+    std::thread t16([this, &words, cur] {this->find_words_at(board, 3, 1, words, cur); });
+    std::thread t17([this, &words, cur] {this->find_words_at(board, 3, 2, words, cur); });
+    std::thread t18([this, &words, cur] {this->find_words_at(board, 3, 3, words, cur); });
+    std::thread t19([this, &words, cur] {this->find_words_at(board, 3, 4, words, cur); });
+
+    std::thread t20([this, &words, cur] {this->find_words_at(board, 4, 0, words, cur); });
+    std::thread t21([this, &words, cur] {this->find_words_at(board, 4, 1, words, cur); });
+    std::thread t22([this, &words, cur] {this->find_words_at(board, 4, 2, words, cur); });
+    std::thread t23([this, &words, cur] {this->find_words_at(board, 4, 3, words, cur); });
+    std::thread t24([this, &words, cur] {this->find_words_at(board, 4, 4, words, cur); });
+
+    t0.join();
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+
+    t5.join();
+    t6.join();
+    t7.join();
+    t8.join();
+    t9.join();
+
+    t10.join();
+    t11.join();
+    t12.join();
+    t13.join();
+    t14.join();
+
+    t15.join();
+    t16.join();
+    t17.join();
+    t18.join();
+    t19.join();
+
+    t20.join();
+    t21.join();
+    t22.join();
+    t23.join();
+    t24.join();
 
     for (auto word : words) {
         cout << word.word << endl;
         word.print_word_chart();
     }
+    cout << "Total words: " << words.size() << endl;
 }
 
 void boggle::solve() {
@@ -241,14 +295,14 @@ bool boggle::word_in_board(string input) {
 }
 
 void boggle::search_for_word_at(vector<vector<char>> b, unsigned int row, unsigned int col, vector<mapped_word> &words, mapped_word cur, string word) {
-    if (row >= board.size() || col >= board.at(row).size() || (!is_partial_word(cur.word) && cur.word != "")) {
+    if (row >= b.size() || col >= b.at(row).size() || (!is_partial_word(cur.word) && cur.word != "")) {
         return;
     }
     else if (!partial_word_of(cur.word, word)) {
         return;
     }
     else {
-        cur.word += tolower(board.at(row).at(col));
+        cur.word += tolower(b.at(row).at(col));
         cur.letters.push_back({row, col});
     }
     if (is_word(cur.word)) {

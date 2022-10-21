@@ -49,7 +49,7 @@ class boggle {
         std::vector<std::string> inputted_words;
         bool is_word(std::string input);
         bool is_partial_word(std::string input);
-        void find_words_at(unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur);
+        void find_words_at(std::vector<std::vector<char>> b, unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur);
         void find_all_words();
         void search_for_word_at(std::vector<std::vector<char>> b, unsigned int row, unsigned int col, std::vector<mapped_word> & words, mapped_word cur, std::string word);
         bool partial_word_of(std::string piece, std::string whole);
