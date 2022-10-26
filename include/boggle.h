@@ -29,6 +29,7 @@ class boggle {
         std::vector<std::vector<char>> board;
         struct timeval start_time;
         unsigned int elapsed_seconds;
+        void print_thread_cursors(bool printing);
         void update_time();
         void start_game();
         void play();
@@ -51,7 +52,7 @@ class boggle {
         std::vector<std::string> inputted_words;
         bool is_word(std::string input);
         bool is_partial_word(std::string input);
-        void find_words_at(std::vector<std::vector<char>> b, unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur);
+        void find_words_at(std::vector<std::vector<char>> b, unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur, unsigned int t_i);
         void find_all_words();
         void search_for_word_at(std::vector<std::vector<char>> b, unsigned int row, unsigned int col, std::vector<mapped_word> & words, mapped_word cur, std::string word);
         bool partial_word_of(std::string piece, std::string whole);
@@ -62,6 +63,8 @@ class boggle {
         void generate_solution();
         void output_mapped_word_set(std::vector<mapped_word> word, std::ofstream& outFS);
         void output_solution();
+        bool thread_cursor;
+        std::vector<mapped_word> thread_cursors;
 };
 
 #endif

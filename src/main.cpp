@@ -3,5 +3,6 @@
 
 int main() {
     boggle b1;
-    b1.boot_up();
+    // b1.boot_up();
+    b1.solve();
 }

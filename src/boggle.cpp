@@ -38,6 +38,11 @@ boggle::boggle() {
     screen = s;
     elapsed_seconds = 0;
     state = title;
+    thread_cursor = false;
+    if (thread_cursor) {
+        vector<mapped_word> t(25);
+        thread_cursors = t;
+    }
 }
 
 void boggle::print_board() {
@@ -103,6 +108,12 @@ void boggle::shuffle() {
             ++die;
         }
     }
+
+    board = {{'P', 'R', 'I', 'H', 'T'},
+             {'N', 'F', 'T', 'H', 'A'},
+             {'L', 'E', 'C', 'E', 'M'},
+             {'C', 'N', 'E', 'S', 'E'},
+             {'R', 'O', 'N', 'Z', 'I'}};
 }
 
 bool boggle::is_word(string input) {
@@ -137,7 +148,7 @@ bool boggle::is_partial_word(string input) {
     return false;
 }
 
-void boggle::find_words_at(vector<vector<char>> b, unsigned int row, unsigned int col, vector<mapped_word> &words, mapped_word cur) {
+void boggle::find_words_at(vector<vector<char>> b, unsigned int row, unsigned int col, vector<mapped_word> &words, mapped_word cur, unsigned int t_i) {
     if (row >= b.size() || col >= b.at(0).size() || (!is_partial_word(cur.word) && cur.word != "")) {
         return;
     }
@@ -146,22 +157,27 @@ void boggle::find_words_at(vector<vector<char>> b, unsigned int row, unsigned in
         cur.letters.push_back({row, col});
     }
     if (is_word(cur.word)) {
-        cout << "word " << words.size() + 1 << ": " << cur.word << endl;
+        if (!thread_cursor) {
+            cout << "word " << words.size() + 1 << ": " << cur.word << endl;
+        }
         words.push_back(cur);
+    }
+    if (thread_cursor) {
+        thread_cursors.at(t_i) = cur;
     }
 
     // Sets - so that the current letter isn't used again
     char t = b.at(row).at(col);
     b.at(row).at(col) = '-';
 
-    find_words_at(b, row - 1, col - 1, words, cur);
-    find_words_at(b, row - 1, col, words, cur);
-    find_words_at(b, row - 1, col + 1, words, cur);
-    find_words_at(b, row, col + 1, words, cur);
-    find_words_at(b, row + 1, col + 1, words, cur);
-    find_words_at(b, row + 1, col, words, cur);
-    find_words_at(b, row + 1, col - 1, words, cur);
-    find_words_at(b, row, col - 1, words, cur);
+    find_words_at(b, row - 1, col - 1, words, cur, t_i);
+    find_words_at(b, row - 1, col, words, cur, t_i);
+    find_words_at(b, row - 1, col + 1, words, cur, t_i);
+    find_words_at(b, row, col + 1, words, cur, t_i);
+    find_words_at(b, row + 1, col + 1, words, cur, t_i);
+    find_words_at(b, row + 1, col, words, cur, t_i);
+    find_words_at(b, row + 1, col - 1, words, cur, t_i);
+    find_words_at(b, row, col - 1, words, cur, t_i);
 
     b.at(row).at(col) = t;
 
@@ -172,35 +188,35 @@ void boggle::find_all_words() {
     vector<mapped_word> words;
     mapped_word cur;
 
-    std::thread t0([this, &words, cur] {this->find_words_at(board, 0, 0, words, cur); });
-    std::thread t1([this, &words, cur] {this->find_words_at(board, 0, 1, words, cur); });
-    std::thread t2([this, &words, cur] {this->find_words_at(board, 0, 2, words, cur); });
-    std::thread t3([this, &words, cur] {this->find_words_at(board, 0, 3, words, cur); });
-    std::thread t4([this, &words, cur] {this->find_words_at(board, 0, 4, words, cur); });
+    std::thread t0([this, &words, cur] {this->find_words_at(board, 0, 0, words, cur, 0); });
+    std::thread t1([this, &words, cur] {this->find_words_at(board, 0, 1, words, cur, 1); });
+    std::thread t2([this, &words, cur] {this->find_words_at(board, 0, 2, words, cur, 2); });
+    std::thread t3([this, &words, cur] {this->find_words_at(board, 0, 3, words, cur, 3); });
+    std::thread t4([this, &words, cur] {this->find_words_at(board, 0, 4, words, cur, 4); });
 
-    std::thread t5([this, &words, cur] {this->find_words_at(board, 1, 0, words, cur); });
-    std::thread t6([this, &words, cur] {this->find_words_at(board, 1, 1, words, cur); });
-    std::thread t7([this, &words, cur] {this->find_words_at(board, 1, 2, words, cur); });
-    std::thread t8([this, &words, cur] {this->find_words_at(board, 1, 3, words, cur); });
-    std::thread t9([this, &words, cur] {this->find_words_at(board, 1, 4, words, cur); });
+    std::thread t5([this, &words, cur] {this->find_words_at(board, 1, 0, words, cur, 5); });
+    std::thread t6([this, &words, cur] {this->find_words_at(board, 1, 1, words, cur, 6); });
+    std::thread t7([this, &words, cur] {this->find_words_at(board, 1, 2, words, cur, 7); });
+    std::thread t8([this, &words, cur] {this->find_words_at(board, 1, 3, words, cur, 8); });
+    std::thread t9([this, &words, cur] {this->find_words_at(board, 1, 4, words, cur, 9); });
 
-    std::thread t10([this, &words, cur] {this->find_words_at(board, 2, 0, words, cur); });
-    std::thread t11([this, &words, cur] {this->find_words_at(board, 2, 1, words, cur); });
-    std::thread t12([this, &words, cur] {this->find_words_at(board, 2, 2, words, cur); });
-    std::thread t13([this, &words, cur] {this->find_words_at(board, 2, 3, words, cur); });
-    std::thread t14([this, &words, cur] {this->find_words_at(board, 2, 4, words, cur); });
+    std::thread t10([this, &words, cur] {this->find_words_at(board, 2, 0, words, cur, 10); });
+    std::thread t11([this, &words, cur] {this->find_words_at(board, 2, 1, words, cur, 11); });
+    std::thread t12([this, &words, cur] {this->find_words_at(board, 2, 2, words, cur, 12); });
+    std::thread t13([this, &words, cur] {this->find_words_at(board, 2, 3, words, cur, 13); });
+    std::thread t14([this, &words, cur] {this->find_words_at(board, 2, 4, words, cur, 14); });
 
-    std::thread t15([this, &words, cur] {this->find_words_at(board, 3, 0, words, cur); });
-    std::thread t16([this, &words, cur] {this->find_words_at(board, 3, 1, words, cur); });
-    std::thread t17([this, &words, cur] {this->find_words_at(board, 3, 2, words, cur); });
-    std::thread t18([this, &words, cur] {this->find_words_at(board, 3, 3, words, cur); });
-    std::thread t19([this, &words, cur] {this->find_words_at(board, 3, 4, words, cur); });
+    std::thread t15([this, &words, cur] {this->find_words_at(board, 3, 0, words, cur, 15); });
+    std::thread t16([this, &words, cur] {this->find_words_at(board, 3, 1, words, cur, 16); });
+    std::thread t17([this, &words, cur] {this->find_words_at(board, 3, 2, words, cur, 17); });
+    std::thread t18([this, &words, cur] {this->find_words_at(board, 3, 3, words, cur, 18); });
+    std::thread t19([this, &words, cur] {this->find_words_at(board, 3, 4, words, cur, 19); });
 
-    std::thread t20([this, &words, cur] {this->find_words_at(board, 4, 0, words, cur); });
-    std::thread t21([this, &words, cur] {this->find_words_at(board, 4, 1, words, cur); });
-    std::thread t22([this, &words, cur] {this->find_words_at(board, 4, 2, words, cur); });
-    std::thread t23([this, &words, cur] {this->find_words_at(board, 4, 3, words, cur); });
-    std::thread t24([this, &words, cur] {this->find_words_at(board, 4, 4, words, cur); });
+    std::thread t20([this, &words, cur] {this->find_words_at(board, 4, 0, words, cur, 20); });
+    std::thread t21([this, &words, cur] {this->find_words_at(board, 4, 1, words, cur, 21); });
+    std::thread t22([this, &words, cur] {this->find_words_at(board, 4, 2, words, cur, 22); });
+    std::thread t23([this, &words, cur] {this->find_words_at(board, 4, 3, words, cur, 23); });
+    std::thread t24([this, &words, cur] {this->find_words_at(board, 4, 4, words, cur, 24); });
 
     t0.join();
     t1.join();
@@ -236,9 +252,18 @@ void boggle::find_all_words() {
 }
 
 void boggle::solve() {
-    find_all_words();
-    generate_solution();
-    output_solution();
+    if (thread_cursor) {
+        bool printing = true;
+        std::thread t([this, printing] {this->print_thread_cursors(printing); });
+        find_all_words();
+        printing = false;
+        t.join();
+    }
+    else {
+        find_all_words();
+        generate_solution();
+        output_solution();
+    }
 }
 
 void boggle::mapped_word::print_board(vector<vector<char>> b) {
@@ -273,6 +298,24 @@ string boggle::mapped_word::get_line(unsigned int line) {
         output += (i < c.at(line).size() - 1 ? " " : "");
     }
     return output;
+}
+
+void boggle::print_thread_cursors(bool printing) {
+    while (printing) {
+        cout << endl << endl << endl << endl << endl;
+        vector<mapped_word> line;
+        line = {thread_cursors.at(0), thread_cursors.at(1), thread_cursors.at(2), thread_cursors.at(3), thread_cursors.at(4)};
+        print_mapped_word_set(line);
+        line = {thread_cursors.at(5), thread_cursors.at(6), thread_cursors.at(7), thread_cursors.at(8), thread_cursors.at(9)};
+        print_mapped_word_set(line);
+        line = {thread_cursors.at(10), thread_cursors.at(11), thread_cursors.at(12), thread_cursors.at(13), thread_cursors.at(14)};
+        print_mapped_word_set(line);
+        line = {thread_cursors.at(15), thread_cursors.at(16), thread_cursors.at(17), thread_cursors.at(18), thread_cursors.at(19)};
+        print_mapped_word_set(line);
+        line = {thread_cursors.at(20), thread_cursors.at(21), thread_cursors.at(22), thread_cursors.at(23), thread_cursors.at(24)};
+        print_mapped_word_set(line);
+        std::this_thread::sleep_for(0.5s);
+    }
 }
 
 bool boggle::word_in_board(string input) {
@@ -379,11 +422,9 @@ void boggle::boot_up() {
         }
         else if (input == "view rules") {
             state = view_rules;
-            // print_screen();
         }
         else if (input == "title screen") {
             state = title;
-            // print_screen();
         }
     }
 }
@@ -830,10 +871,19 @@ void boggle::output_mapped_word_set(vector<mapped_word> word, std::ofstream& out
 
 void boggle::output_solution() {
     std::ofstream outFS;
-    outFS.open("solution.txt");
+    string file_name = "output/solution_";
+    for (unsigned int row = 0; row < board.size(); ++row) {
+        for (unsigned int col = 0; col < board.at(row).size(); ++col) {
+            file_name += board.at(row).at(col);
+        }
+    }
+    file_name += ".txt";
+    outFS.open(file_name);
     for (unsigned int i = 0; i < solution.size(); ++i) {
+        outFS << solution.at(i).at(0).word << endl;
         output_mapped_word_set(solution.at(i), outFS);
+        outFS << endl;
     }
     outFS.close();
-    cout << "Solution outputted to \"solution.txt\"" << endl;
+    cout << "Solution outputted to \"" << file_name << "\"" << endl;
 }
