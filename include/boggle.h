@@ -29,7 +29,7 @@ class boggle {
         std::vector<std::vector<char>> board;
         struct timeval start_time;
         unsigned int elapsed_seconds;
-        void print_thread_cursors(bool printing);
+        void print_thread_cursors(bool& printing);
         void update_time();
         void start_game();
         void play();
@@ -65,6 +65,7 @@ class boggle {
         void output_solution();
         bool thread_cursor;
         std::vector<mapped_word> thread_cursors;
+        std::vector<std::string> word_buffer;
 };
 
 #endif

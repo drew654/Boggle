@@ -38,7 +38,7 @@ boggle::boggle() {
     screen = s;
     elapsed_seconds = 0;
     state = title;
-    thread_cursor = false;
+    thread_cursor = true;
     if (thread_cursor) {
         vector<mapped_word> t(25);
         thread_cursors = t;
@@ -151,7 +151,10 @@ void boggle::find_words_at(vector<vector<char>> b, unsigned int row, unsigned in
         cur.letters.push_back({row, col});
     }
     if (is_word(cur.word)) {
-        if (!thread_cursor) {
+        if (thread_cursor) {
+            word_buffer.push_back(cur.word);
+        }
+        else {
             cout << "word " << words.size() + 1 << ": " << cur.word << endl;
         }
         words.push_back(cur);
@@ -248,10 +251,12 @@ void boggle::find_all_words() {
 void boggle::solve() {
     if (thread_cursor) {
         bool printing = true;
-        std::thread t([this, printing] {this->print_thread_cursors(printing); });
+        std::thread t([this, &printing] {this->print_thread_cursors(printing); });
         find_all_words();
         printing = false;
         t.join();
+        generate_solution();
+        output_solution();
     }
     else {
         find_all_words();
@@ -294,7 +299,7 @@ string boggle::mapped_word::get_line(unsigned int line) {
     return output;
 }
 
-void boggle::print_thread_cursors(bool printing) {
+void boggle::print_thread_cursors(bool& printing) {
     while (printing) {
         cout << endl << endl << endl << endl << endl;
         vector<mapped_word> line;
@@ -308,6 +313,14 @@ void boggle::print_thread_cursors(bool printing) {
         print_mapped_word_set(line);
         line = {thread_cursors.at(20), thread_cursors.at(21), thread_cursors.at(22), thread_cursors.at(23), thread_cursors.at(24)};
         print_mapped_word_set(line);
+        if (word_buffer.size() > 0) {
+            cout << "words found: ";
+        }
+        for (unsigned int i = 0; i < word_buffer.size(); ++i) {
+            cout << word_buffer.at(i) << (i < word_buffer.size() - 1 ? ", " : "");
+        }
+        cout << endl;
+        word_buffer.clear();
         std::this_thread::sleep_for(0.5s);
     }
 }
