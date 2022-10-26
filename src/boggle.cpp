@@ -108,12 +108,6 @@ void boggle::shuffle() {
             ++die;
         }
     }
-
-    board = {{'P', 'R', 'I', 'H', 'T'},
-             {'N', 'F', 'T', 'H', 'A'},
-             {'L', 'E', 'C', 'E', 'M'},
-             {'C', 'N', 'E', 'S', 'E'},
-             {'R', 'O', 'N', 'Z', 'I'}};
 }
 
 bool boggle::is_word(string input) {
