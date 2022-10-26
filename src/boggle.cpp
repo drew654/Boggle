@@ -2,13 +2,12 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <thread>
 #include <time.h>
 #include <sys/time.h>
-#include <thread>
 
 using std::cout, std::endl;
 using std::string, std::vector, std::pair;
-using std::ifstream;
 using namespace std::chrono_literals;
 
 int v_count(vector<int> v, int i) {
@@ -107,7 +106,7 @@ void boggle::shuffle() {
 }
 
 bool boggle::is_word(string input) {
-    ifstream inFS;
+    std::ifstream inFS;
     inFS.open("word-list.txt");
         
     string index;
@@ -123,7 +122,7 @@ bool boggle::is_word(string input) {
 }
 
 bool boggle::is_partial_word(string input) {
-    ifstream inFS;
+    std::ifstream inFS;
     inFS.open("word-list.txt");
 
     string index;
@@ -147,7 +146,7 @@ void boggle::find_words_at(vector<vector<char>> b, unsigned int row, unsigned in
         cur.letters.push_back({row, col});
     }
     if (is_word(cur.word)) {
-        cout << "word: " << cur.word << endl;
+        cout << "word " << words.size() + 1 << ": " << cur.word << endl;
         words.push_back(cur);
     }
 
@@ -169,7 +168,6 @@ void boggle::find_words_at(vector<vector<char>> b, unsigned int row, unsigned in
     return;
 }
 
-// TODO: Make it so that there are no duplicate words in the end
 void boggle::find_all_words() {
     vector<mapped_word> words;
     mapped_word cur;
@@ -234,15 +232,13 @@ void boggle::find_all_words() {
     t23.join();
     t24.join();
 
-    for (auto word : words) {
-        cout << word.word << endl;
-        word.print_word_chart();
-    }
-    cout << "Total words: " << words.size() << endl;
+    board_words = words;
 }
 
 void boggle::solve() {
     find_all_words();
+    generate_solution();
+    output_solution();
 }
 
 void boggle::mapped_word::print_board(vector<vector<char>> b) {
@@ -267,6 +263,16 @@ vector<vector<char>> boggle::mapped_word::word_chart() {
 
 void boggle::mapped_word::print_word_chart() {
     print_board(word_chart());
+}
+
+string boggle::mapped_word::get_line(unsigned int line) {
+    string output = "";
+    vector<vector<char>> c = word_chart();
+    for (unsigned int i = 0; i < c.at(line).size(); ++i) {
+        output += c.at(line).at(i);
+        output += (i < c.at(line).size() - 1 ? " " : "");
+    }
+    return output;
 }
 
 bool boggle::word_in_board(string input) {
@@ -294,6 +300,7 @@ bool boggle::word_in_board(string input) {
     return false;
 }
 
+// TODO: Add progress bar by a boggle private variable passed by reference
 void boggle::search_for_word_at(vector<vector<char>> b, unsigned int row, unsigned int col, vector<mapped_word> &words, mapped_word cur, string word) {
     if (row >= b.size() || col >= b.at(row).size() || (!is_partial_word(cur.word) && cur.word != "")) {
         return;
@@ -342,27 +349,42 @@ void boggle::play_game() {
 }
 
 void boggle::boot_up() {
-    print_screen();
     while (state == title || state == view_rules) {
         string input;
         if (state == title) {
+            print_screen();
             cout << "What would you like to do? (play, view rules)" << endl;
         }
         else if (state == view_rules) {
+            print_screen();
             cout << "What would you like to do? (play, title screen)" << endl;
         }
         getline(std::cin, input);
         if (input == "play") {
             state = game;
             play_game();
+            cout << "Total words found: " << player_words.size() << endl;
+            cout << "Would you like to see all of the words in this board? (yes, no)" << endl;
+            std::cin >> input;
+            if (input == "yes") {
+                cout << endl;
+                solve();
+            }
+            else if (input == "no") {
+                cout << endl;
+            }
+            else {
+                cout << "That was not one of the options." << endl;
+            }
         }
         else if (input == "view rules") {
             state = view_rules;
+            // print_screen();
         }
         else if (input == "title screen") {
             state = title;
+            // print_screen();
         }
-        print_screen();
     }
 }
 
@@ -398,9 +420,6 @@ void boggle::play_visible() {
     struct timeval current_time;
     gettimeofday(&current_time, NULL);
     elapsed_seconds = current_time.tv_sec - start_time.tv_sec + 1;
-    for (int i = 0; i < 30; ++i) {
-        cout << endl;
-    }
     print_screen();
     while (elapsed_seconds <= 120) {
         string input;
@@ -604,10 +623,15 @@ void boggle::write_timer_to_screen(unsigned int r, unsigned int c) {
         screen.at(r).at(c + 1) = (remaining_time % 10 / 1) + '0';
         screen.at(r).at(c + 2) = ' ';
     }
-    else {
+    else if (remaining_time > 0) {
         screen.at(r).at(c) = (remaining_time % 10 / 1) + '0';
         screen.at(r).at(c + 1) = ' ';
         screen.at(r).at(c + 2) = ' ';
+    }
+    else {
+        screen.at(r).at(c) = '0';
+        screen.at(r).at(c) = ' ';
+        screen.at(r).at(c) = ' ';
     }
 }
 
@@ -719,4 +743,97 @@ void boggle::remove_duplicate_of_last(vector<string>& input) {
             input.erase(input.begin() + i);
         }
     }
+}
+
+void boggle::print_mapped_word_set(vector<mapped_word> word) {
+    vector<string> output;
+    string line = "";
+    for (unsigned int i = 0; i < word.size(); ++i) {
+        line += "┌───────────┐";
+        line += (i < word.size() - 1 ? " " : "");
+    }
+    output.push_back(line);
+    line = "";
+    for (unsigned int j = 0; j < 5; ++j) {
+        for (unsigned int i = 0; i < word.size(); ++i) {
+            line += "│ ";
+            line += word.at(i).get_line(j);
+            line += " │";
+            line += (i < word.size() - 1 ? " " : "");
+        }
+        output.push_back(line);
+        line = "";
+    }
+    for (unsigned int i = 0; i < word.size(); ++i) {
+        line += "└───────────┘";
+        line += (i < word.size() - 1 ? " " : "");
+    }
+    output.push_back(line);
+    
+    for (unsigned int i = 0; i < output.size(); ++i) {
+        cout << output.at(i) << endl;
+    }
+}
+
+void boggle::print_solution() {
+    for (unsigned int i = 0; i < solution.size(); ++i) {
+        print_mapped_word_set(solution.at(i));
+    }
+}
+
+void boggle::generate_solution() {
+    vector<vector<mapped_word>> sol;
+    for (auto w : board_words) {
+        bool duplicate = false;
+        for (unsigned int s = 0; s < sol.size(); ++s) {
+            if (w.word == sol.at(s).at(0).word) {
+                sol.at(s).push_back(w);
+                duplicate = true;
+            }
+        }
+        if (!duplicate) {
+            sol.push_back({w});
+        }
+    }
+    solution = sol;
+}
+
+void boggle::output_mapped_word_set(vector<mapped_word> word, std::ofstream& outFS) {
+    vector<string> output;
+    string line = "";
+    for (unsigned int i = 0; i < word.size(); ++i) {
+        line += "┌───────────┐";
+        line += (i < word.size() - 1 ? " " : "");
+    }
+    output.push_back(line);
+    line = "";
+    for (unsigned int j = 0; j < 5; ++j) {
+        for (unsigned int i = 0; i < word.size(); ++i) {
+            line += "│ ";
+            line += word.at(i).get_line(j);
+            line += " │";
+            line += (i < word.size() - 1 ? " " : "");
+        }
+        output.push_back(line);
+        line = "";
+    }
+    for (unsigned int i = 0; i < word.size(); ++i) {
+        line += "└───────────┘";
+        line += (i < word.size() - 1 ? " " : "");
+    }
+    output.push_back(line);
+    
+    for (unsigned int i = 0; i < output.size(); ++i) {
+        outFS << output.at(i) << endl;
+    }
+}
+
+void boggle::output_solution() {
+    std::ofstream outFS;
+    outFS.open("solution.txt");
+    for (unsigned int i = 0; i < solution.size(); ++i) {
+        output_mapped_word_set(solution.at(i), outFS);
+    }
+    outFS.close();
+    cout << "Solution outputted to \"solution.txt\"" << endl;
 }

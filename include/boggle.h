@@ -20,6 +20,7 @@ class boggle {
                 std::string word;
                 std::vector<std::pair<int, int>> letters;
                 void print_word_chart();
+                std::string get_line(unsigned int line);
             private:
                 std::vector<std::vector<char>> word_chart();
                 void print_board(std::vector<std::vector<char>> b);
@@ -43,7 +44,8 @@ class boggle {
         void write_player_words_to_screen(unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col);
         void write_inputted_words_to_screen(unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col);
         std::vector<std::vector<char>> screen;
-        std::vector<std::string> board_words;
+        std::vector<mapped_word> board_words;
+        std::vector<std::vector<mapped_word>> solution;
         std::vector<std::string> player_words;
         std::vector<std::string> wrong_words;
         std::vector<std::string> inputted_words;
@@ -55,6 +57,11 @@ class boggle {
         bool partial_word_of(std::string piece, std::string whole);
         bool word_in_board(std::string input);
         void remove_duplicate_of_last(std::vector<std::string>& input);
+        void print_mapped_word_set(std::vector<mapped_word> word);
+        void print_solution();
+        void generate_solution();
+        void output_mapped_word_set(std::vector<mapped_word> word, std::ofstream& outFS);
+        void output_solution();
 };
 
 #endif
