@@ -385,20 +385,22 @@ void boggle::play_game() {
     vector<mapped_word> t(25);
     thread_cursors = t;
     word_buffer.clear();
+    game_solved = false;
     shuffle();
     start_game();
     play();
 }
 
 void boggle::boot_up() {
+    string input;
     while (state == title || state == view_rules || state == post_game) {
-        string input;
-        if (state == title) {
+        if (input != "solve board") {
             print_screen();
-            cout << "What would you like to do? (play, view rules, exit)" << endl;
+        }
+        if (state == title) {
+            cout << "What would you like to do? (play, view rules, solve board, exit)" << endl;
         }
         else if (state == view_rules) {
-            print_screen();
             cout << "What would you like to do? (play, title screen, exit)" << endl;
         }
         if (state != post_game) {
@@ -406,33 +408,65 @@ void boggle::boot_up() {
         }
         if (input == "play" || state == post_game) {
             if (state == post_game) {
-
+                cout << "What would you like to do? (title screen, " << (!game_solved ? "solve game, " : "") << "exit)" << endl;
+                getline(std::cin, input);
+                if (input == "title screen") {
+                    cout << endl;
+                    state = title;
+                }
+                else if (input == "solve game" && !game_solved) {
+                    state = solve_game;
+                    cout << endl;
+                    solve();
+                    game_solved = true;
+                    state = post_game;
+                }
+                else if (input == "exit") {
+                    exit(0);
+                }
             }
             else {
+                cout << endl;
                 state = game;
                 play_game();
                 state = post_game;
                 cout << "Total words found: " << player_words.size() << endl;
                 std::cin.ignore();
             }
-            cout << "What would you like to do? (title screen, solve board, exit)" << endl;
-            getline(std::cin, input);
-            if (input == "title screen") {
-                state = title;
-            }
-            else if (input == "solve board") {
-                state = solve_game;
-                cout << endl;
-                solve();
-                state = post_game;
-            }
-            else if (input == "exit") {
-                exit(0);
-            }
         }
         else if (input == "view rules") {
             state = view_rules;
             cout << endl;
+        }
+        else if (input == "solve board") {
+            cout << "Usage: \"solve board <25 letters>\"" << endl;
+        }
+        else if (input.substr(0, 11) == "solve board") {
+            string input_board = input.substr(12, input.size() - 1);
+            bool valid_input = true;
+            for (unsigned int i = 0; i < input_board.size(); ++i) {
+                if (!isalpha(input_board.at(i))) {
+                    valid_input = false;
+                }
+            }
+            if (input_board.size() != 25) {
+                cout << "Usage: \"solve board <25 letters>\"" << endl;
+            }
+            else if (!valid_input) {
+                cout << "Usage: \"solve board <25 letters>\"" << endl;
+            }
+            else if (valid_input) {
+                unsigned int i = 0;
+                for (unsigned int row = 0; row < 5; ++row) {
+                    for (unsigned int col = 0; col < 5; ++col) {
+                        board.at(row).at(col) = toupper(input_board.at(i));
+                        ++i;
+                    }
+                }
+                state = solve_board;
+                solve();
+                state = title;
+            }
         }
         else if (input == "title screen") {
             state = title;

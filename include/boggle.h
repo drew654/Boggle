@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-enum screen_state {title, game, post_game, checking_words, view_rules, solve_game};
+enum screen_state {title, game, post_game, checking_words, view_rules, solve_game, solve_board};
 
 class boggle {
     public:
@@ -29,6 +29,7 @@ class boggle {
         std::vector<std::vector<char>> board;
         struct timeval start_time;
         unsigned int elapsed_seconds;
+        bool game_solved;
         void print_thread_cursors(bool& printing);
         void update_time();
         void start_game();
