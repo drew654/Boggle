@@ -30,6 +30,14 @@ int v_highest_count(vector<int> v) {
     return highest_count;
 }
 
+string str_tolower(string input) {
+    string output = "";
+    for (unsigned int i = 0; i < input.size(); ++i) {
+        output += tolower(input.at(i));
+    }
+    return output;
+}
+
 boggle::boggle() {
     vector<vector<char>> b(5, vector<char>(5));
     board = b;
@@ -109,32 +117,32 @@ void boggle::shuffle() {
 
 bool boggle::is_word(string input) {
     std::ifstream inFS;
-    inFS.open("word-list.txt");
-        
+    inFS.open("Collins_Scrabble_Words_2019.txt");
     string index;
+    getline(inFS, index);
+    getline(inFS, index);
     while (!inFS.eof()) {
         getline(inFS, index);
-        if (input == index) {
+        if (str_tolower(input) == str_tolower(index.substr(0, index.size() - 1))) {
             return true;
         }
     }
-
     inFS.close();
     return false;
 }
 
 bool boggle::is_partial_word(string input) {
     std::ifstream inFS;
-    inFS.open("word-list.txt");
-
+    inFS.open("Collins_Scrabble_Words_2019.txt");
     string index;
+    getline(inFS, index);
+    getline(inFS, index);
     while (!inFS.eof()) {
         getline(inFS, index);
-        if (input == index.substr(0, input.size())) {
+        if (str_tolower(input) == str_tolower(index.substr(0, input.size()))) {
             return true;
         }
     }
-
     inFS.close();
     return false;
 }
@@ -394,13 +402,12 @@ void boggle::play_game() {
 void boggle::boot_up() {
     string input;
     while (state == title || state == view_rules || state == post_game) {
-        if (input != "solve board") {
-            print_screen();
-        }
         if (state == title) {
+            print_screen();
             cout << "What would you like to do? (play, view rules, solve board, exit)" << endl;
         }
         else if (state == view_rules) {
+            print_screen();
             cout << "What would you like to do? (play, title screen, exit)" << endl;
         }
         if (state != post_game) {
@@ -503,6 +510,7 @@ void boggle::play() {
         }
         print_screen();
     }
+    state = post_game;
 }
 
 void boggle::play_visible() {
