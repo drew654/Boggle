@@ -38,11 +38,8 @@ boggle::boggle() {
     screen = s;
     elapsed_seconds = 0;
     state = title;
-    thread_cursor = true;
-    if (thread_cursor) {
-        vector<mapped_word> t(25);
-        thread_cursors = t;
-    }
+    vector<mapped_word> t(25);
+    thread_cursors = t;
 }
 
 void boggle::print_board() {
@@ -151,17 +148,10 @@ void boggle::find_words_at(vector<vector<char>> b, unsigned int row, unsigned in
         cur.letters.push_back({row, col});
     }
     if (is_word(cur.word)) {
-        if (thread_cursor) {
-            word_buffer.push_back(cur.word);
-        }
-        else {
-            cout << "word " << words.size() + 1 << ": " << cur.word << endl;
-        }
+        word_buffer.push_back(cur.word);
         words.push_back(cur);
     }
-    if (thread_cursor) {
-        thread_cursors.at(t_i) = cur;
-    }
+    thread_cursors.at(t_i) = cur;
 
     // Sets - so that the current letter isn't used again
     char t = b.at(row).at(col);
@@ -249,20 +239,13 @@ void boggle::find_all_words() {
 }
 
 void boggle::solve() {
-    if (thread_cursor) {
-        bool printing = true;
-        std::thread t([this, &printing] {this->print_thread_cursors(printing); });
-        find_all_words();
-        printing = false;
-        t.join();
-        generate_solution();
-        output_solution();
-    }
-    else {
-        find_all_words();
-        generate_solution();
-        output_solution();
-    }
+    bool printing = true;
+    std::thread t([this, &printing] {this->print_thread_cursors(printing); });
+    find_all_words();
+    printing = false;
+    t.join();
+    generate_solution();
+    output_solution();
 }
 
 void boggle::mapped_word::print_board(vector<vector<char>> b) {
@@ -394,51 +377,75 @@ bool boggle::partial_word_of(string piece, string whole) {
 }
 
 void boggle::play_game() {
+    board_words.clear();
+    solution.clear();
+    player_words.clear();
+    wrong_words.clear();
+    inputted_words.clear();
+    vector<mapped_word> t(25);
+    thread_cursors = t;
+    word_buffer.clear();
+    shuffle();
     start_game();
     play();
 }
 
 void boggle::boot_up() {
-    while (state == title || state == view_rules) {
+    while (state == title || state == view_rules || state == post_game) {
         string input;
         if (state == title) {
             print_screen();
-            cout << "What would you like to do? (play, view rules)" << endl;
+            cout << "What would you like to do? (play, view rules, exit)" << endl;
         }
         else if (state == view_rules) {
             print_screen();
-            cout << "What would you like to do? (play, title screen)" << endl;
+            cout << "What would you like to do? (play, title screen, exit)" << endl;
         }
-        getline(std::cin, input);
-        if (input == "play") {
-            state = game;
-            play_game();
-            cout << "Total words found: " << player_words.size() << endl;
-            cout << "Would you like to see all of the words in this board? (yes, no)" << endl;
-            std::cin >> input;
-            if (input == "yes") {
-                cout << endl;
-                solve();
-            }
-            else if (input == "no") {
-                cout << endl;
+        if (state != post_game) {
+            getline(std::cin, input);
+        }
+        if (input == "play" || state == post_game) {
+            if (state == post_game) {
+
             }
             else {
-                cout << "That was not one of the options." << endl;
+                state = game;
+                play_game();
+                state = post_game;
+                cout << "Total words found: " << player_words.size() << endl;
+                std::cin.ignore();
+            }
+            cout << "What would you like to do? (title screen, solve board, exit)" << endl;
+            getline(std::cin, input);
+            if (input == "title screen") {
+                state = title;
+            }
+            else if (input == "solve board") {
+                state = solve_game;
+                cout << endl;
+                solve();
+                state = post_game;
+            }
+            else if (input == "exit") {
+                exit(0);
             }
         }
         else if (input == "view rules") {
             state = view_rules;
+            cout << endl;
         }
         else if (input == "title screen") {
             state = title;
+            cout << endl;
+        }
+        else if (input == "exit") {
+            exit(0);
         }
     }
 }
 
 void boggle::start_game() {
     gettimeofday(&start_time, NULL);
-    write_board_to_screen(0, 0);
     state = game;
 }
 
@@ -892,5 +899,5 @@ void boggle::output_solution() {
         outFS << endl;
     }
     outFS.close();
-    cout << "Solution outputted to \"" << file_name << "\"" << endl;
+    cout << "Solution outputted to \"" << file_name << "\"" << endl << endl;
 }

@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-enum screen_state {title, game, post_game, checking_words, view_rules};
+enum screen_state {title, game, post_game, checking_words, view_rules, solve_game};
 
 class boggle {
     public:
@@ -63,7 +63,6 @@ class boggle {
         void generate_solution();
         void output_mapped_word_set(std::vector<mapped_word> word, std::ofstream& outFS);
         void output_solution();
-        bool thread_cursor;
         std::vector<mapped_word> thread_cursors;
         std::vector<std::string> word_buffer;
 };
