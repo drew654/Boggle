@@ -47,6 +47,14 @@ string str_tolower(string input) {
     return output;
 }
 
+string str_toupper(string input) {
+    string output = "";
+    for (unsigned int i = 0; i < input.size(); ++i) {
+        output += toupper(input.at(i));
+    }
+    return output;
+}
+
 boggle::boggle() {
     vector<vector<char>> b(5, vector<char>(5));
     board = b;
@@ -407,7 +415,7 @@ void boggle::boot_up() {
     while (state == title || state == view_rules || state == post_game) {
         if (state == title) {
             print_screen();
-            cout << "What would you like to do? (play, view rules, solve board, exit)" << endl;
+            cout << "What would you like to do? (play, view rules, solve board, define, exit)" << endl;
         }
         else if (state == view_rules) {
             print_screen();
@@ -478,6 +486,12 @@ void boggle::boot_up() {
                 solve();
                 state = title;
             }
+        }
+        else if (input == "define") {
+            cout << "Usage: \"define <word>\"" << endl;
+        }
+        else if (input.substr(0, 6) == "define") {
+            cout << str_toupper(input.substr(7)) << ": " << define(input.substr(7)) << endl;
         }
         else if (input == "title screen") {
             state = title;
@@ -1035,4 +1049,20 @@ void boggle::add_score(string input) {
     else if (input.size() >= 8) {
         score += 11;
     }
+}
+
+string boggle::define(string input) {
+    std::ifstream inFS;
+    inFS.open("Collins_Scrabble_Words_2019_with_definitions.txt");
+    string index;
+    getline(inFS, index);
+    getline(inFS, index);
+    while (!inFS.eof()) {
+        getline(inFS, index);
+        if (str_tolower(index.substr(0, index.find('\t'))) == str_tolower(input)) {
+            return index.substr(index.find('\t') + 1);
+        }
+    }
+    inFS.close();
+    return "No definition found.";
 }

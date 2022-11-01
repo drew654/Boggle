@@ -70,6 +70,7 @@ class boggle {
         std::vector<std::string> word_buffer;
         void sort_words(unsigned int index);
         void add_score(std::string input);
+        std::string define(std::string input);
 };
 
 #endif
