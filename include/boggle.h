@@ -9,10 +9,6 @@ enum screen_state {title, game, post_game, checking_words, view_rules, solve_gam
 class boggle {
     public:
         boggle();
-        void shuffle();
-        void print_board();
-        void solve();
-        void play_game();
         void boot_up();
     private:
         class mapped_word {
@@ -30,6 +26,10 @@ class boggle {
         struct timeval start_time;
         unsigned int elapsed_seconds;
         bool game_solved;
+        void shuffle();
+        void print_board();
+        void solve();
+        void play_game();
         void print_thread_cursors(bool& printing);
         void update_time();
         void start_game();

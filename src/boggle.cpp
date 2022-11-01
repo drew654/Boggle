@@ -543,7 +543,6 @@ void boggle::play_invisible() {
             }
         }
     }
-    
 }
 
 void boggle::print_screen() {
@@ -568,7 +567,7 @@ void boggle::print_screen() {
     }
     else if (state == view_rules) {
         clear_screen();
-        string input = "You have two minutes to type as many words as you can.\n\nHere are the requirements for words:\n\nWords must be at least three letters in length.\n\nEach letter after the first must be a horizontal, vertical, or diagonal neighbor of the one before it.\n\nNo individual letter on the board may be used more than\nonce in a word.\n\nNo capitalized or hyphenated words are allowed.";
+        string input = "You have two minutes to type as many words as you can.\n\nHere are the requirements for words:\n\nEach letter after the first must be a horizontal, vertical, or diagonal neighbor of the one before it.\n\nNo individual letter on the board may be used more than\nonce in a word.\n\nNo capitalized or hyphenated words are allowed.";
         write_text_box_to_screen(input, 0, screen.size() - 1, 0, screen.at(0).size() - 1);
     }
     
@@ -709,7 +708,7 @@ void boggle::write_timer_to_screen(unsigned int r, unsigned int c) {
     }
     c += s.size();
 
-    unsigned int remaining_time = 120 - elapsed_seconds + 1;
+    int remaining_time = 120 - elapsed_seconds + 1;
     if (remaining_time >= 100) {
         screen.at(r).at(c) = (remaining_time % 1000 / 100) + '0';
         screen.at(r).at(c + 1) = (remaining_time % 100 / 10) + '0';
@@ -727,8 +726,8 @@ void boggle::write_timer_to_screen(unsigned int r, unsigned int c) {
     }
     else {
         screen.at(r).at(c) = '0';
-        screen.at(r).at(c) = ' ';
-        screen.at(r).at(c) = ' ';
+        screen.at(r).at(c + 1) = ' ';
+        screen.at(r).at(c + 2) = ' ';
     }
 }
 
