@@ -26,6 +26,7 @@ class boggle {
         struct timeval start_time;
         unsigned int elapsed_seconds;
         bool game_solved;
+        unsigned int score;
         void shuffle();
         void print_board();
         void solve();
@@ -42,6 +43,7 @@ class boggle {
         void write_title_to_screen();
         void write_board_to_screen(unsigned int r, unsigned int c);
         void write_timer_to_screen(unsigned int r, unsigned int c);
+        void write_score_to_screen(unsigned int r, unsigned int c);
         void write_wrong_words_to_screen(unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col);
         void write_player_words_to_screen(unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col);
         void write_inputted_words_to_screen(unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col);
@@ -67,6 +69,7 @@ class boggle {
         std::vector<mapped_word> thread_cursors;
         std::vector<std::string> word_buffer;
         void sort_words(unsigned int index);
+        void add_score(std::string input);
 };
 
 #endif

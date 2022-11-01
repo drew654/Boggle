@@ -59,6 +59,7 @@ boggle::boggle() {
     thread_cursors = t;
     vector<vector<string>> i(10);
     inputted_words = i;
+    score = 0;
 }
 
 void boggle::print_board() {
@@ -440,6 +441,7 @@ void boggle::boot_up() {
                 play_game();
                 state = post_game;
                 cout << "Total words found: " << player_words.size() << endl;
+                cout << "Final score: " << score << endl;
                 std::cin.ignore();
             }
         }
@@ -516,7 +518,8 @@ void boggle::play() {
     s8.join();
     s9.join();
     x.join();
-    
+
+    print_screen();
     state = post_game;
 }
 
@@ -567,6 +570,7 @@ void boggle::print_screen() {
         clear_screen();
         write_board_to_screen(0, 0);
         write_timer_to_screen(0, screen.at(0).size() - 9);
+        write_score_to_screen(0, screen.at(0).size() - 20);
         write_wrong_words_to_screen(2, 17, 30, 45);
         write_player_words_to_screen(2, 17, 15, 30);
         write_inputted_words_to_screen(2, 17, 45, 60);
@@ -734,6 +738,35 @@ void boggle::write_timer_to_screen(unsigned int r, unsigned int c) {
     }
     else if (remaining_time > 0) {
         screen.at(r).at(c) = (remaining_time % 10 / 1) + '0';
+        screen.at(r).at(c + 1) = ' ';
+        screen.at(r).at(c + 2) = ' ';
+    }
+    else {
+        screen.at(r).at(c) = '0';
+        screen.at(r).at(c + 1) = ' ';
+        screen.at(r).at(c + 2) = ' ';
+    }
+}
+
+void boggle::write_score_to_screen(unsigned int r, unsigned int c) {
+    string s = "Score: ";
+    for (unsigned int i = 0; i < s.size(); ++i) {
+        screen.at(r).at(c + i) = s.at(i);
+    }
+    c += s.size();
+
+    if (score >= 100) {
+        screen.at(r).at(c) = (score % 1000 / 100) + '0';
+        screen.at(r).at(c + 1) = (score % 100 / 10) + '0';
+        screen.at(r).at(c + 2) = (score % 10 / 1) + '0';
+    }
+    else if (score >= 10) {
+        screen.at(r).at(c) = (score % 100 / 10) + '0';
+        screen.at(r).at(c + 1) = (score % 10 / 1) + '0';
+        screen.at(r).at(c + 2) = ' ';
+    }
+    else if (score > 0) {
+        screen.at(r).at(c) = (score % 10 / 1) + '0';
         screen.at(r).at(c + 1) = ' ';
         screen.at(r).at(c + 2) = ' ';
     }
@@ -975,6 +1008,7 @@ void boggle::sort_words(unsigned int index) {
             }
             else if (word_in_board(inputted_words.at(index).at(0))) {
                 player_words.push_back(inputted_words.at(index).at(0));
+                add_score(inputted_words.at(index).at(0));
                 inputted_words.at(index).erase(inputted_words.at(index).begin());
             }
             else {
@@ -982,5 +1016,23 @@ void boggle::sort_words(unsigned int index) {
                 inputted_words.at(index).erase(inputted_words.at(index).begin());
             }
         }
+    }
+}
+
+void boggle::add_score(string input) {
+    if (input.size() < 5) {
+        score += 1;
+    }
+    else if (input.size() == 5) {
+        score += 2;
+    }
+    else if (input.size() == 6) {
+        score += 3;
+    }
+    else if (input.size() == 7) {
+        score += 5;
+    }
+    else if (input.size() >= 8) {
+        score += 11;
     }
 }
