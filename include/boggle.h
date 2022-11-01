@@ -50,7 +50,7 @@ class boggle {
         std::vector<std::vector<mapped_word>> solution;
         std::vector<std::string> player_words;
         std::vector<std::string> wrong_words;
-        std::vector<std::string> inputted_words;
+        std::vector<std::vector<std::string>> inputted_words;
         bool is_word(std::string input);
         bool is_partial_word(std::string input);
         void find_words_at(std::vector<std::vector<char>> b, unsigned int row, unsigned int col, std::vector<mapped_word> &words, mapped_word cur, unsigned int t_i);
@@ -66,6 +66,7 @@ class boggle {
         void output_solution();
         std::vector<mapped_word> thread_cursors;
         std::vector<std::string> word_buffer;
+        void sort_words(unsigned int index);
 };
 
 #endif

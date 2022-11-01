@@ -30,6 +30,15 @@ int v_highest_count(vector<int> v) {
     return highest_count;
 }
 
+bool v_contains(vector<string> v, string element) {
+    for (auto i : v) {
+        if (i == element) {
+            return true;
+        }
+    }
+    return false;
+}
+
 string str_tolower(string input) {
     string output = "";
     for (unsigned int i = 0; i < input.size(); ++i) {
@@ -48,6 +57,8 @@ boggle::boggle() {
     state = title;
     vector<mapped_word> t(25);
     thread_cursors = t;
+    vector<vector<string>> i(10);
+    inputted_words = i;
 }
 
 void boggle::print_board() {
@@ -188,25 +199,21 @@ void boggle::find_all_words() {
     std::thread t2([this, &words, cur] {this->find_words_at(board, 0, 2, words, cur, 2); });
     std::thread t3([this, &words, cur] {this->find_words_at(board, 0, 3, words, cur, 3); });
     std::thread t4([this, &words, cur] {this->find_words_at(board, 0, 4, words, cur, 4); });
-
     std::thread t5([this, &words, cur] {this->find_words_at(board, 1, 0, words, cur, 5); });
     std::thread t6([this, &words, cur] {this->find_words_at(board, 1, 1, words, cur, 6); });
     std::thread t7([this, &words, cur] {this->find_words_at(board, 1, 2, words, cur, 7); });
     std::thread t8([this, &words, cur] {this->find_words_at(board, 1, 3, words, cur, 8); });
     std::thread t9([this, &words, cur] {this->find_words_at(board, 1, 4, words, cur, 9); });
-
     std::thread t10([this, &words, cur] {this->find_words_at(board, 2, 0, words, cur, 10); });
     std::thread t11([this, &words, cur] {this->find_words_at(board, 2, 1, words, cur, 11); });
     std::thread t12([this, &words, cur] {this->find_words_at(board, 2, 2, words, cur, 12); });
     std::thread t13([this, &words, cur] {this->find_words_at(board, 2, 3, words, cur, 13); });
     std::thread t14([this, &words, cur] {this->find_words_at(board, 2, 4, words, cur, 14); });
-
     std::thread t15([this, &words, cur] {this->find_words_at(board, 3, 0, words, cur, 15); });
     std::thread t16([this, &words, cur] {this->find_words_at(board, 3, 1, words, cur, 16); });
     std::thread t17([this, &words, cur] {this->find_words_at(board, 3, 2, words, cur, 17); });
     std::thread t18([this, &words, cur] {this->find_words_at(board, 3, 3, words, cur, 18); });
     std::thread t19([this, &words, cur] {this->find_words_at(board, 3, 4, words, cur, 19); });
-
     std::thread t20([this, &words, cur] {this->find_words_at(board, 4, 0, words, cur, 20); });
     std::thread t21([this, &words, cur] {this->find_words_at(board, 4, 1, words, cur, 21); });
     std::thread t22([this, &words, cur] {this->find_words_at(board, 4, 2, words, cur, 22); });
@@ -218,25 +225,21 @@ void boggle::find_all_words() {
     t2.join();
     t3.join();
     t4.join();
-
     t5.join();
     t6.join();
     t7.join();
     t8.join();
     t9.join();
-
     t10.join();
     t11.join();
     t12.join();
     t13.join();
     t14.join();
-
     t15.join();
     t16.join();
     t17.join();
     t18.join();
     t19.join();
-
     t20.join();
     t21.join();
     t22.join();
@@ -389,7 +392,6 @@ void boggle::play_game() {
     solution.clear();
     player_words.clear();
     wrong_words.clear();
-    inputted_words.clear();
     vector<mapped_word> t(25);
     thread_cursors = t;
     word_buffer.clear();
@@ -492,24 +494,29 @@ void boggle::start_game() {
 
 void boggle::play() {
     std::thread x([this] { this->play_visible(); });
-    std::thread y([this] { this->play_invisible(); });
-    y.join();
+    std::thread s0([this] {this->sort_words(0); });
+    std::thread s1([this] {this->sort_words(1); });
+    std::thread s2([this] {this->sort_words(2); });
+    std::thread s3([this] {this->sort_words(3); });
+    std::thread s4([this] {this->sort_words(4); });
+    std::thread s5([this] {this->sort_words(5); });
+    std::thread s6([this] {this->sort_words(6); });
+    std::thread s7([this] {this->sort_words(7); });
+    std::thread s8([this] {this->sort_words(8); });
+    std::thread s9([this] {this->sort_words(9); });
+
+    s0.join();
+    s1.join();
+    s2.join();
+    s3.join();
+    s4.join();
+    s5.join();
+    s6.join();
+    s7.join();
+    s8.join();
+    s9.join();
     x.join();
     
-    state = checking_words;
-    while (inputted_words.size() > 0) {
-        if (word_in_board(inputted_words.at(0))) {
-            player_words.push_back(inputted_words.at(0));
-            inputted_words.erase(inputted_words.begin());
-            remove_duplicate_of_last(player_words);
-        }
-        else {
-            wrong_words.push_back(inputted_words.at(0));
-            inputted_words.erase(inputted_words.begin());
-            remove_duplicate_of_last(wrong_words);
-        }
-        print_screen();
-    }
     state = post_game;
 }
 
@@ -518,31 +525,37 @@ void boggle::play_visible() {
     gettimeofday(&current_time, NULL);
     elapsed_seconds = current_time.tv_sec - start_time.tv_sec + 1;
     print_screen();
+    unsigned int inputted_count = 0;
     while (elapsed_seconds <= 120) {
         string input;
         cout << "Enter a word: ";
         std::cin >> input;
-        inputted_words.push_back(input);
+        inputted_words.at(inputted_count % 10).push_back(input);
+        ++inputted_count;
         gettimeofday(&current_time, NULL);
         elapsed_seconds = current_time.tv_sec - start_time.tv_sec;
         print_screen();
     }
-}
-
-void boggle::play_invisible() {
-    while (elapsed_seconds <= 120) {
-        std::this_thread::sleep_for(0.1s);
-        if (inputted_words.size() > 0) {
-            if (word_in_board(inputted_words.at(0))) {
-                player_words.push_back(inputted_words.at(0));
-                inputted_words.erase(inputted_words.begin());
-            }
-            else {
-                wrong_words.push_back(inputted_words.at(0));
-                inputted_words.erase(inputted_words.begin());
-            }
-        }
-    }
+    
+    while (inputted_words.at(0).size() > 0 || 
+           inputted_words.at(1).size() > 0 ||
+           inputted_words.at(2).size() > 0 ||
+           inputted_words.at(3).size() > 0 ||
+           inputted_words.at(4).size() > 0 ||
+           inputted_words.at(5).size() > 0 ||
+           inputted_words.at(6).size() > 0 ||
+           inputted_words.at(7).size() > 0 ||
+           inputted_words.at(8).size() > 0 ||
+           inputted_words.at(9).size() > 0) {
+                std::this_thread::sleep_for(1s);
+                print_screen();
+                cout << "sorting";
+                gettimeofday(&current_time, NULL);
+                for (unsigned int i = 0; i <= current_time.tv_sec % 3; ++i) {
+                    cout << ".";
+                }
+                cout << endl;
+           } 
 }
 
 void boggle::print_screen() {
@@ -800,6 +813,7 @@ void boggle::write_player_words_to_screen(unsigned int top_row, unsigned int bot
 }
 
 void boggle::write_inputted_words_to_screen(unsigned int top_row, unsigned int bottom_row, unsigned int left_col, unsigned int right_col) {
+    vector<string> i_words;
     unsigned int r = top_row;
     unsigned int c = left_col;
 
@@ -809,13 +823,19 @@ void boggle::write_inputted_words_to_screen(unsigned int top_row, unsigned int b
     }
     ++r;
 
+    for (unsigned int i = 0; i < inputted_words.size(); ++i) {
+        for (unsigned int j = 0; j < inputted_words.at(i).size(); ++j) {
+            i_words.push_back(inputted_words.at(i).at(j));
+        }
+    }
+
     unsigned int start_point = 0;
-    if (inputted_words.size() > bottom_row) {
-        start_point = inputted_words.size() - bottom_row;
+    if (i_words.size() > bottom_row) {
+        start_point = i_words.size() - bottom_row;
     }
     for (unsigned int i = 0; i < bottom_row; ++i) {
-        if (i < inputted_words.size()) {
-            s = inputted_words.at(i + start_point);
+        if (i < i_words.size()) {
+            s = i_words.at(i + start_point);
             for (unsigned int j = 0; j < right_col - left_col; ++j) {
                 if (j < s.size()) {
                     screen.at(r + i).at(c + j) = s.at(j);
@@ -941,4 +961,26 @@ void boggle::output_solution() {
     }
     outFS.close();
     cout << "Solution outputted to \"" << file_name << "\"" << endl << endl;
+}
+
+void boggle::sort_words(unsigned int index) {
+    while (elapsed_seconds <= 120 || inputted_words.at(index).size() > 0) {
+        std::this_thread::sleep_for(0.1s);
+        if (inputted_words.at(index).size() > 0) {
+            if (v_contains(player_words, inputted_words.at(index).at(0))) {
+                inputted_words.at(index).erase(inputted_words.at(index).begin());
+            }
+            else if (v_contains(wrong_words, inputted_words.at(index).at(0))) {
+                inputted_words.at(index).erase(inputted_words.at(index).begin());
+            }
+            else if (word_in_board(inputted_words.at(index).at(0))) {
+                player_words.push_back(inputted_words.at(index).at(0));
+                inputted_words.at(index).erase(inputted_words.at(index).begin());
+            }
+            else {
+                wrong_words.push_back(inputted_words.at(index).at(0));
+                inputted_words.at(index).erase(inputted_words.at(index).begin());
+            }
+        }
+    }
 }
