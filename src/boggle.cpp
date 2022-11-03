@@ -56,6 +56,23 @@ string str_toupper(string input) {
 }
 
 boggle::boggle() {
+    bool has_neccessary_files = true;
+    std::ifstream inFS;
+    inFS.open("Collins_Scrabble_Words_2019.txt");
+    if (!inFS.is_open()) {
+        cout << "Error: Missing word list: \"Collins_Scrabble_Words_2019.txt\"" << endl;
+        has_neccessary_files = false;
+    }
+    inFS.close();
+    inFS.open("Collins_Scrabble_Words_2019_with_definitions.txt");
+    if (!inFS.is_open()) {
+        cout << "Error: Missing dictionary: \"Collins_Scrabble_Words_2019_with_definitions.txt\"" << endl;
+        has_neccessary_files = false;
+    }
+    inFS.close();
+    if (!has_neccessary_files) {
+        exit(1);
+    }
     vector<vector<char>> b(5, vector<char>(5));
     board = b;
     this->shuffle();
