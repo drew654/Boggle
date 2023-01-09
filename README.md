@@ -26,3 +26,5 @@ When solving the Boggle board, a thread is made for each of the dice in the boar
 At the end of finding every word in the board, the solution to that game is outputted as `solution_<board name>.txt`. In this case, the board is called `ENETHOTITMRVNTONEEBARSEYC` and its solution file name is called `solution_ENETHOTITMRVNTONEEBARSEYC.txt`. `ENETHOTITMRVNTONEEBARSEYC` is what can be inputted by the player for the "solve board" option of the title screen to solve that board without playing through the game.
 
 ![image](https://user-images.githubusercontent.com/55492673/211376339-79c7991a-63ca-4264-8a16-07d44e42c8b0.png)
+
+Here is a [demo video](https://youtu.be/SqJSmkqrkHI) of the game running.
