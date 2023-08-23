@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 enum screen_state {title, game, post_game, checking_words, view_rules, solve_game, solve_board};
 
@@ -27,7 +28,9 @@ class boggle {
         unsigned int elapsed_seconds;
         bool game_solved;
         unsigned int score;
+        std::unordered_map <std::string, std::string> dictionary;
         void shuffle();
+        void load_dictionary();
         void print_board();
         void solve();
         void play_game();

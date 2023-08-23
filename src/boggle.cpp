@@ -58,21 +58,16 @@ string str_toupper(string input) {
 boggle::boggle() {
     bool has_neccessary_files = true;
     std::ifstream inFS;
-    inFS.open("Collins_Scrabble_Words_2019.txt");
+    inFS.open("src/Collins_Scrabble_Words_2019_with_definitions.txt");
     if (!inFS.is_open()) {
-        cout << "Error: Missing word list: \"Collins_Scrabble_Words_2019.txt\"" << endl;
-        has_neccessary_files = false;
-    }
-    inFS.close();
-    inFS.open("Collins_Scrabble_Words_2019_with_definitions.txt");
-    if (!inFS.is_open()) {
-        cout << "Error: Missing dictionary: \"Collins_Scrabble_Words_2019_with_definitions.txt\"" << endl;
+        cout << "Error: Missing dictionary: \"Collins_Scrabble_Words_2019_with_definitions.txt\" in \"src\" folder" << endl;
         has_neccessary_files = false;
     }
     inFS.close();
     if (!has_neccessary_files) {
         exit(1);
     }
+    load_dictionary();
     vector<vector<char>> b(5, vector<char>(5));
     board = b;
     this->shuffle();
@@ -98,6 +93,21 @@ void boggle::print_board() {
     }
     cout << "└───────────┘" << endl;
     cout << endl;
+}
+
+void boggle::load_dictionary() {
+    std::ifstream inFS;
+    inFS.open("src/Collins_Scrabble_Words_2019_with_definitions.txt");
+    string line;
+    getline(inFS, line);
+    getline(inFS, line);
+    while (getline(inFS, line)) {
+        int tab_index = line.find('\t');
+        string word = line.substr(0, tab_index);
+        string definition = line.substr(tab_index + 1, line.size() - 1);
+        dictionary.insert({word, definition});
+    }
+    inFS.close();
 }
 
 void boggle::shuffle() {
@@ -153,34 +163,20 @@ void boggle::shuffle() {
 }
 
 bool boggle::is_word(string input) {
-    std::ifstream inFS;
-    inFS.open("Collins_Scrabble_Words_2019.txt");
-    string index;
-    getline(inFS, index);
-    getline(inFS, index);
-    while (!inFS.eof()) {
-        getline(inFS, index);
-        if (str_tolower(input) == str_tolower(index.substr(0, index.size() - 1))) {
-            return true;
-        }
+    if (dictionary.find(str_toupper(input)) != dictionary.end()) {
+        return true;
     }
-    inFS.close();
-    return false;
+    else {
+        return false;
+    }
 }
 
 bool boggle::is_partial_word(string input) {
-    std::ifstream inFS;
-    inFS.open("Collins_Scrabble_Words_2019.txt");
-    string index;
-    getline(inFS, index);
-    getline(inFS, index);
-    while (!inFS.eof()) {
-        getline(inFS, index);
-        if (str_tolower(input) == str_tolower(index.substr(0, input.size()))) {
+    for (auto i : dictionary) {
+        if (str_tolower(input) == str_tolower(i.first.substr(0, input.size()))) {
             return true;
         }
     }
-    inFS.close();
     return false;
 }
 
@@ -1069,17 +1065,5 @@ void boggle::add_score(string input) {
 }
 
 string boggle::define(string input) {
-    std::ifstream inFS;
-    inFS.open("Collins_Scrabble_Words_2019_with_definitions.txt");
-    string index;
-    getline(inFS, index);
-    getline(inFS, index);
-    while (!inFS.eof()) {
-        getline(inFS, index);
-        if (str_tolower(index.substr(0, index.find('\t'))) == str_tolower(input)) {
-            return index.substr(index.find('\t') + 1);
-        }
-    }
-    inFS.close();
-    return "No definition found.";
+    return dictionary.at(str_toupper(input));
 }
