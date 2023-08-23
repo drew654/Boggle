@@ -58,7 +58,7 @@ string str_toupper(string input) {
 boggle::boggle() {
     bool has_neccessary_files = true;
     std::ifstream inFS;
-    inFS.open("src/Collins_Scrabble_Words_2019_with_definitions.txt");
+    inFS.open("Collins_Scrabble_Words_2019_with_definitions.txt");
     if (!inFS.is_open()) {
         cout << "Error: Missing dictionary: \"Collins_Scrabble_Words_2019_with_definitions.txt\" in \"src\" folder" << endl;
         has_neccessary_files = false;
@@ -97,7 +97,7 @@ void boggle::print_board() {
 
 void boggle::load_dictionary() {
     std::ifstream inFS;
-    inFS.open("src/Collins_Scrabble_Words_2019_with_definitions.txt");
+    inFS.open("Collins_Scrabble_Words_2019_with_definitions.txt");
     string line;
     getline(inFS, line);
     getline(inFS, line);

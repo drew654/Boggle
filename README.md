@@ -1,7 +1,7 @@
 # Boggle
 It's Boggle, but in the command line.
 
-Run program on Linux by using `./obj/main` in the root folder of the program, where `Collins_Scrabble_Words_2019.txt` and `Collins_Scrabble_Words_2019_with_definitions.txt` are located.
+Run program on Linux by using `./boggle` in the root folder of the program, where `Collins_Scrabble_Words_2019_with_definitions.txt` is located.
 
 On the main title screen, there are options to play the game, view the rules, solve an existing board inputted by the user, define a word, and exit the program.
 
